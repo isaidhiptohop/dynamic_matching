@@ -1,0 +1,70 @@
+./executer -f sequences/fromseed_4204737162_10000_300000_addition-only.sequence -a bgs --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_addition-only.sequence -a gpa --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_addition-only.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_addition-only.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_addition-only.sequence -a ns --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_meyerhenke_100000.sequence -a bgs --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_meyerhenke_100000.sequence -a gpa --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_meyerhenke_100000.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_meyerhenke_100000.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_meyerhenke_100000.sequence -a ns --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_random-step.sequence -a bgs --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_random-step.sequence -a gpa --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_random-step.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_random-step.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_random-step.sequence -a ns --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_sliding-window_100000.sequence -a bgs --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_sliding-window_100000.sequence -a gpa --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_sliding-window_100000.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_sliding-window_100000.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/fromseed_4204737162_10000_300000_sliding-window_100000.sequence -a ns --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_addition-only.sequence -a bgs --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_addition-only.sequence -a gpa --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_addition-only.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_addition-only.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_addition-only.sequence -a ns --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_meyerhenke_100000.sequence -a bgs --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_meyerhenke_100000.sequence -a gpa --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_meyerhenke_100000.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_meyerhenke_100000.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_meyerhenke_100000.sequence -a ns --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_sliding-window_100000.sequence -a bgs --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_sliding-window_100000.sequence -a gpa --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_sliding-window_100000.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_sliding-window_100000.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/youtube-u-growth_4204737162_100000_300000_sliding-window_100000.sequence -a ns --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_addition-only.sequence -a bgs --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_addition-only.sequence -a gpa --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_addition-only.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_addition-only.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_addition-only.sequence -a ns --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_meyerhenke_100000.sequence -a bgs --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_meyerhenke_100000.sequence -a gpa --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_meyerhenke_100000.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_meyerhenke_100000.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_meyerhenke_100000.sequence -a ns --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_sliding-window_100000.sequence -a bgs --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_sliding-window_100000.sequence -a gpa --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_sliding-window_100000.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_sliding-window_100000.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/facebook-wosn-links_4204737162_100000_300000_sliding-window_100000.sequence -a ns --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_addition-only.sequence -a bgs --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_addition-only.sequence -a gpa --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_addition-only.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_addition-only.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_addition-only.sequence -a ns --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_meyerhenke_100000.sequence -a bgs --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_meyerhenke_100000.sequence -a gpa --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_meyerhenke_100000.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_meyerhenke_100000.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_meyerhenke_100000.sequence -a ns --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_random-step.sequence -a bgs --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_random-step.sequence -a gpa --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_random-step.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_random-step.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_random-step.sequence -a ns --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_sliding-window_100000.sequence -a bgs --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_sliding-window_100000.sequence -a gpa --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_sliding-window_100000.sequence -a naive 0.01 --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_sliding-window_100000.sequence -a naive 0.1 --at-once 1000
+./executer -f sequences/fromseed_4204737162_100000_300000_sliding-window_100000.sequence -a ns --at-once 1000
