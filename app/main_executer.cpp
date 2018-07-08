@@ -57,74 +57,7 @@ int main (int argc, char ** argv) {
         std::ofstream matching_file;
         matching_file.open(output_filename + "_matchings");
         
-        /*
-        if (conf.algorithm == ALGORITHM::gpa) {
-            dyn_graph_access * dyn_G = create_graph(n);
-            
-            timer t;
-            double time_elapsed = 0;
-            int insertions = 0;
-            int deletions = 0;
-            
-            for (size_t i = 0; i < edge_sequence.size(); ++i) {
-                std::pair<NodeID, NodeID> edge = edge_sequence.at(i).second;
-                
-                // do addition or deletion
-                if (edge_sequence.at(i).first) {
-                    dyn_G->new_edge(edge.first, edge.second);
-//                    dyn_G->new_edge(edge.second, edge.first);
-                    
-                    insertions++;
-                } else {
-                    dyn_G->remove_edge(edge.first, edge.second);
-//                    dyn_G->new_edge(edge.second, edge.first);
-                    
-                    deletions++;
-                }
-                
-                
-                // for gpa, calculate matching only all "at_once" steps.
-                if ((i+1) % conf.at_once == 0 || i == edge_sequence.size() - 1) {
-                    graph_access G;
-                    dyn_G->convert_to_graph_access(G);
-                    
-                    graph_io::writeGraph(G, std::string("snapshots/snapshot_" + std::to_string(i) + ".graph"));
-                    
-
-                    std::cout << "step: " << i << std::endl;
-                    
-                    std::cout <<  "graph has " <<  G.number_of_nodes() <<  " nodes and " <<  G.number_of_edges() <<  " edges"  << std::endl;
-                    std::cout << "graph:    ";
-                    forall_nodes(G,n) {
-                        forall_out_edges(G,e,n) {
-                            std::cout << n << " " << G.getEdgeTarget(e) << "; ";
-                        } endfor
-                    } endfor
-                    
-                    std::cout << std::endl;
-                    
-                    std::vector<std::pair<NodeID, NodeID> > pairvec_matching;
-                    
-//                    pairvec_matching = gpa_match::match(G, time_elapsed, conf.seed);
-                    
-                    std::cout << "matching: ";
-                    
-//                    print_matching(std::cout, pairvec_matching);
-                    
-                    // divide matching size by two for undirected graphs
-//                    output_file << insertions << " " << deletions << " " << G.number_of_edges()/2 << " "<< pairvec_matching.size()/2 << " " << time_elapsed << std::endl;
-                    
-                    insertions = 0;
-                    deletions = 0;
-                    
-                    std::cout << std::endl;
-*//*
-                }
-            }
-            
-            delete dyn_G;
-        } else {
-        */
+        
         /* calculate size (lines) of the resulting data to reserve space. */
         size_t result_size;
         if (edge_sequence.size() % conf.at_once == 0) {

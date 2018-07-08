@@ -21,7 +21,7 @@ compile_test:
 compile:
 	g++ -o executer.o -c $(CFLAGS) $(INCLUDE) executer.cpp
 	g++ -o sequence.o -c $(CFLAGS) $(INCLUDE) sequence.cpp
-	g++ -o main_exexcuter.o -c $(CFLAGS) $(INCLUDE) main.cpp
+	g++ -o main_executer.o -c $(CFLAGS) $(INCLUDE) main_executer.cpp
 	g++ -o main.o -c $(CFLAGS) $(INCLUDE) main.cpp
 
 link:
