@@ -1,5 +1,0 @@
--a bgs --at-once 10000
--a gpa --at-once 10000
--a naive 0.01 --at-once 10000
--a naive 0.1 --at-once 10000
--a ns --at-once 10000
