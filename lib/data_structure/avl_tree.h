@@ -38,12 +38,12 @@ private:
         Node (T id);
         Node (const Node&);
         
-//        ~Node ();
+        ~Node ();
     };
     
 public:
     avl_tree ();
-//    ~avl_tree ();
+    ~avl_tree ();
 
     bool insert (T id);
     bool remove (T id);
@@ -88,14 +88,14 @@ avl_tree<T>::avl_tree () {
     root = nullptr;
     count = 0;
 }
-/*
+
 template <class T>
 avl_tree<T>::~avl_tree () {
     if (root) {
         delete root;
     }
 }
-*/
+
 template <class T>
 bool avl_tree<T>::insert (T id) {
     size_t tmp = count;
@@ -163,7 +163,7 @@ avl_tree<T>::Node::Node (const Node& node) {
     right = node.right;
     height = node.height;
 }
-/*
+
 template <class T>
 avl_tree<T>::Node::~Node () {
     if (left) {
@@ -174,7 +174,7 @@ avl_tree<T>::Node::~Node () {
         delete right;
     }
 }
-*/
+
 template <class T>
 size_t avl_tree<T>::height (avl_tree<T>::Node * node) {
     if (!node) {
@@ -288,6 +288,9 @@ typename avl_tree<T>::Node * avl_tree<T>::remove (T id, Node * node) {
         } else if (!node->left || !node->right) { // one child: make the child a child of its
                                                   // grandparent, remove the parent (=node)
             Node * tmp = node->left ? node->left : node->right;
+            
+            node->left = nullptr;
+            node->right = nullptr;
             
             delete node;
             node = nullptr;
