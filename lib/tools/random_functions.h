@@ -34,9 +34,10 @@ typedef std::mt19937 MersenneTwister;
 
 class random_functions {
         public:
+/*
                 random_functions();
                 virtual ~random_functions();
-/*
+                
                 template<typename sometype>
                         static void circular_permutation(std::vector<sometype> & vec) {
                                 if(vec.size() < 2) return;

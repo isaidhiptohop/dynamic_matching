@@ -23,13 +23,19 @@
 
 #ifndef QUALITY_METRICS_10HC2I5M
 #define QUALITY_METRICS_10HC2I5M
-
+/*
 #include "data_structure/graph_access.h"
 #include "data_structure/matrix/matrix.h"
 #include "partition_config.h"
+*/
+
+#include "definitions.h"
 
 class quality_metrics {
 public:
+    static double matching_similarity (std::vector<std::pair<NodeID, NodeID> > m_one, std::vector<std::pair<NodeID, NodeID> > m_two);
+    static bool matching_validation (std::vector<std::pair<NodeID, NodeID> > matching);
+/*
         quality_metrics();
         virtual ~quality_metrics ();
 
@@ -50,6 +56,7 @@ public:
 
         NodeWeight total_qap(graph_access & C, matrix & D, std::vector< NodeID > & rank_assign);
         NodeWeight total_qap(matrix & C, matrix & D, std::vector< NodeID > & rank_assign);
+*/
 };
 
 #endif /* end of include guard: QUALITY_METRICS_10HC2I5M */

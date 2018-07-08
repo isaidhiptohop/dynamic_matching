@@ -49,7 +49,7 @@ public:
 private:
     dyn_graph_access M;
     double eps;
-    random_functions rng;
+//    random_functions rng;
     
     // checks whether a vertex is free
     bool freeVertex (NodeID node);

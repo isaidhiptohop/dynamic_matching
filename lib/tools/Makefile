@@ -4,11 +4,15 @@ INCLUDE=-I. -I../
 
 compile_debug:
 	$(CC) -g $(CFLAGS) -o random_functions.o $(INCLUDE) random_functions.cpp
+	$(CC) -g $(CFLAGS) -o quality_matrics.o $(INCLUDE) quality_metrics.cpp
 compile:
 	$(CC) $(CFLAGS) -o random_functions.o $(INCLUDE) random_functions.cpp
+	$(CC) $(CFLAGS) -o quality_metrics.o $(INCLUDE) quality_metrics.cpp
 clean:
 	rm -f *.o
 	rm -f *.gch
 library:
 	make compile
+library_debug:
+	make compile_debug
 

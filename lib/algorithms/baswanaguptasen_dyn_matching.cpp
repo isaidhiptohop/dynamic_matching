@@ -19,8 +19,12 @@ dyn_matching(G) {
     
     M.finish_construction();
     
-    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-    rng.setSeed(a);
+//    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+//    rng.setSeed(a);
+}
+
+baswanaguptasen_dyn_matching::~baswanaguptasen_dyn_matching() {
+//    delete G;
 }
 
 EdgeID baswanaguptasen_dyn_matching::new_edge(NodeID source, NodeID target) {
@@ -273,7 +277,7 @@ void baswanaguptasen_dyn_matching::handling_deletion (NodeID u) {
 
 NodeID * baswanaguptasen_dyn_matching::random_settle (NodeID u) {
     NodeID y;
-    int tmp = rng.nextInt(0, O.at(u).size() - 1);
+    int tmp = random_functions::nextInt(0, O.at(u).size() - 1);
     for (auto x : O.at(u)) { 
         if (tmp-- == 0) {
             y = x.second;

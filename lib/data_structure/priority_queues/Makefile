@@ -10,4 +10,6 @@ clean:
 	rm -f *.gch
 library:
 	make compile
+library_debug:
+	make compile_debug
 

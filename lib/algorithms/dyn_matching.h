@@ -32,7 +32,7 @@ class dyn_matching {
 public:
     dyn_matching (dyn_graph_access* G);
     
-    ~dyn_matching ();
+    virtual ~dyn_matching ();
     
     virtual EdgeID new_edge(NodeID source, NodeID target) = 0;
     

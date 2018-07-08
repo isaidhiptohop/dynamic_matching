@@ -40,6 +40,7 @@ struct RNG {
 class baswanaguptasen_dyn_matching : public dyn_matching {
 public:
     baswanaguptasen_dyn_matching (dyn_graph_access* G);
+    ~baswanaguptasen_dyn_matching ();
     
     virtual EdgeID new_edge(NodeID source, NodeID target);
     
@@ -58,7 +59,7 @@ private:
     // dyn_graph_access
     dyn_graph_access M;
     
-    random_functions rng;
+//    random_functions rng;
     
     bool is_free (NodeID u);
     void set_level (NodeID u, int level);

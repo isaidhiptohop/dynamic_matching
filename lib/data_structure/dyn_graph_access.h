@@ -104,7 +104,7 @@ private:
 };
 
 
-//makros - graph access
+//makros - dyn graph access
 #define forall_edges_d(G,n,e) { \
     for(NodeID n = 0, n_end = G.number_of_nodes(); n < n_end; ++n) \
         for(EdgeID e = 0, e_end = G.getEdgesFromNode(n).size(); e < e_end; ++e) {

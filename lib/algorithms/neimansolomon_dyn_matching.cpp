@@ -20,6 +20,7 @@
 #include "neimansolomon_dyn_matching.h"
 
 //========================// Match struct methods //========================//
+
 neimansolomon_dyn_matching::Match::Match () {
     
 }
@@ -59,6 +60,7 @@ std::ostream& neimansolomon_dyn_matching::Match::print (std::ostream& o) const {
 
 
 //========================// Fv struct methods //========================//
+
 neimansolomon_dyn_matching::Fv::Fv (NodeID n) {
     // in the beginning no neighbour is free, since there is no neighbour, when there are no edges
     free.resize(n, false);
@@ -125,6 +127,9 @@ bool neimansolomon_dyn_matching::Fv::get_free (NodeID& index) { // returns false
     return true;
 }
 
+
+//========================// Neimansolomon matching methods //========================//
+
 neimansolomon_dyn_matching::neimansolomon_dyn_matching (dyn_graph_access* G) : dyn_matching(G) {
     // the underlying data structure dyn_graph_access for the graph itself is initialized
     // by the call to dyn_matching(G). now we initialise our data structures.
@@ -135,8 +140,6 @@ neimansolomon_dyn_matching::neimansolomon_dyn_matching (dyn_graph_access* G) : d
     M = avl_tree<Match>();
     N.resize(G->number_of_nodes(), avl_tree<NodeID>());
     F.resize(G->number_of_nodes(), Fv(G->number_of_nodes()));
-    
-    
 }
 
 EdgeID neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target) {

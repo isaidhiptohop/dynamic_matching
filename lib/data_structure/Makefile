@@ -16,3 +16,6 @@ clean:
 library:
 	make compile
 	cd priority_queues && make library
+library_debug:
+	make compile_debug
+

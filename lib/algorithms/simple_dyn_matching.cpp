@@ -36,9 +36,9 @@ simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn
 
     this->eps = eps;
     
-    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+//    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 //        auto a = std::chrono::system_clock::now();
-    rng.setSeed(a);
+//    rng.setSeed(a);
 }
 
 EdgeID simple_dyn_matching::new_edge(NodeID source, NodeID target) {
@@ -107,6 +107,7 @@ bool simple_dyn_matching::isMatched (NodeID source, NodeID target) {
 }
 
 void simple_dyn_matching::match (NodeID u, NodeID v) {
+    /*
     if (M.getNodeDegree(u) != 0) {
         std::cout << "matching fails on " << u << " which has already " << M.getNodeDegree(u) << " matched edges: " << getMatchedEdge(u) << std::endl;
     }
@@ -114,7 +115,7 @@ void simple_dyn_matching::match (NodeID u, NodeID v) {
     if (M.getNodeDegree(v) != 0) {
         std::cout << "matching fails on " << v << " which has already " << M.getNodeDegree(v) << " matched edges: " << getMatchedEdge(v) << std::endl;
     }
-    
+    */
     ASSERT_TRUE(M.getNodeDegree(u) == 0);
     ASSERT_TRUE(M.getNodeDegree(v) == 0);
     ASSERT_TRUE(!isMatched(u, v));
@@ -140,6 +141,7 @@ NodeID simple_dyn_matching::getMatchedEdge (NodeID source) {
     if (freeVertex(source)) return -1;
     
     // not more than one edge per node allowed for a matching
+/*
     if (M.getEdgesFromNode(source).size() != 1) {
         std::cout << "going to fail... " << source << " has " << M.getEdgesFromNode(source).size() << " matched edges: " << std::endl;
         for (auto e : M.getEdgesFromNode(source)) {
@@ -147,23 +149,17 @@ NodeID simple_dyn_matching::getMatchedEdge (NodeID source) {
         }
         std::cout << std::endl;
     }
+*/ 
     ASSERT_TRUE(M.getEdgesFromNode(source).size() == 1);
     return M.getEdgesFromNode(source).at(0).target;
 }
 
 void simple_dyn_matching::solve_conflict (NodeID u, int step) {
-//    std::cout << "entered solve_conflict on " << u << std::endl;
     // do this recursion maximal 1/eps times
     if (step >= (1.0/eps) || !freeVertex(u)) return;
     
-//    std::cout << "max recursion depth not reached yet since " 
-//              << step << ">=" << (1.0/eps) << " still holds. " << std::endl;
-
     // all edges between index 0 and max_index-1 really exist
     EdgeID max_index = G->get_first_invalid_edge(u);
-    
-//    std::cout << max_index << std::endl;
-//    std::cout << G->get_first_invalid_edge(u) << std::endl;
     
     // if the max_index is -1, then u holds 0 edges. in this case
     // we don't choose a random edge, but simply quit searching
@@ -172,9 +168,7 @@ void simple_dyn_matching::solve_conflict (NodeID u, int step) {
         return;
     }
     
-//    std::cout << "node " << u << " has " << max_index << " matchable edge(s) " << std::endl;
-    
-    EdgeID new_matching_edge = rng.nextInt(0, max_index-1);
+    EdgeID new_matching_edge = random_functions::nextInt(0, max_index-1);
     NodeID v = G->getEdgeTarget(u, new_matching_edge);
     
     // if the target node v is not free, remove the matched edge (v,w)

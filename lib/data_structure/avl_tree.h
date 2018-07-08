@@ -37,10 +37,13 @@ private:
         
         Node (T id);
         Node (const Node&);
+        
+//        ~Node ();
     };
     
 public:
     avl_tree ();
+//    ~avl_tree ();
 
     bool insert (T id);
     bool remove (T id);
@@ -57,9 +60,11 @@ public:
     std::vector<T> allElements ();
     
 private:
+    // members
     Node * root;
     size_t count;
-
+    
+    // private member functions
     size_t height (Node *);
     size_t max (size_t, size_t);
     Node * leftRotate (Node *);
@@ -83,7 +88,14 @@ avl_tree<T>::avl_tree () {
     root = nullptr;
     count = 0;
 }
-
+/*
+template <class T>
+avl_tree<T>::~avl_tree () {
+    if (root) {
+        delete root;
+    }
+}
+*/
 template <class T>
 bool avl_tree<T>::insert (T id) {
     size_t tmp = count;
@@ -151,7 +163,18 @@ avl_tree<T>::Node::Node (const Node& node) {
     right = node.right;
     height = node.height;
 }
-
+/*
+template <class T>
+avl_tree<T>::Node::~Node () {
+    if (left) {
+        delete left;
+    }
+    
+    if (right) {
+        delete right;
+    }
+}
+*/
 template <class T>
 size_t avl_tree<T>::height (avl_tree<T>::Node * node) {
     if (!node) {
