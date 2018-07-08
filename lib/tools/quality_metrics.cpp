@@ -64,7 +64,7 @@ double quality_metrics::matching_similarity (std::vector<std::pair<NodeID, NodeI
         }
     }
     
-    double divisor = m_one.size() > m_two.size() ? m_one.size() : m_two.size();
+    double divisor = m_one.size() + m_two.size() - similar; // | A u B | = | A | + | B | - | A n B |
     double similarity = 0;
     
     if (divisor != 0) {
