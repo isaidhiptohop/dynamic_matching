@@ -2,3 +2,7 @@
 *.o
 *.out
 *.gch
+app/output/*
+app/snapshots/*
+app/executer
+app/sequence
