@@ -1,4 +1,4 @@
-CFLAGS=-g -Wall -std=gnu++11
+CFLAGS=-static -g -Wall -std=gnu++11
 
 INCLUDE=-I../lib/algorithms -I../lib/data_structure -I../lib/data_structure/priority_queues -I../lib -I../lib/io -I../lib/tools
 
@@ -8,15 +8,17 @@ APPNAME=sequence
 
 
 all:
-#	make classes
-	make compile_test
+	make compile
+	make link
 
 run:
 	./$(APPNAME)
 
-compile_test:
-	make compile
-	make link
+compile_debug:
+	g++ -o executer.o -c -g $(CFLAGS) $(INCLUDE) executer.cpp
+	g++ -o sequence.o -c -g $(CFLAGS) $(INCLUDE) sequence.cpp
+	g++ -o main_executer.o -c -g $(CFLAGS) $(INCLUDE) main_executer.cpp
+	g++ -o main.o -c -g $(CFLAGS) $(INCLUDE) main.cpp
 
 compile:
 	g++ -o executer.o -c $(CFLAGS) $(INCLUDE) executer.cpp
