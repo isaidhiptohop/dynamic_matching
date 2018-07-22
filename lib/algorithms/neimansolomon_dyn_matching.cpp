@@ -140,6 +140,10 @@ neimansolomon_dyn_matching::neimansolomon_dyn_matching (dyn_graph_access* G) : d
     M = avl_tree<Match>();
     N.resize(G->number_of_nodes(), avl_tree<NodeID>());
     F.resize(G->number_of_nodes(), Fv(G->number_of_nodes()));
+    
+    #ifdef DM_COUNTERS
+        counters::new_value_list("matches_per_step");
+    #endif
 }
 
 EdgeID neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target) {
@@ -149,6 +153,10 @@ EdgeID neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target) {
     EdgeID e_bar = G->new_edge(target, source);
     
     handle_addition(source, target);
+    
+    #ifdef DM_COUNTERS
+        counters::get("matches_per_step").next();
+    #endif
     
     return e;
 }
@@ -170,11 +178,6 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
     } else {
         F_max.insert(v, deg(v));
     }
-    
-//    std::cout << "F_max size AFTER UPDATE: " << F_max.size() << std::endl;
-
-//    std::cout << "u(=" << u << ") is " << (is_free(u)? "" : "not") << " free." << std::endl;
-//    std::cout << "v(=" << v << ") is " << (is_free(v)? "" : "not") << " free." << std::endl;
     
     if (is_free(u) && is_free(v)) { // if both are free...
         match(u, v);                 // match them!
@@ -213,8 +216,6 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
     } else {
         // do nothing
     }
-    
-//    std::cout << "F_max size AFTER INSERTION: " << F_max.size() << std::endl;
 }
     
 void neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target) {
@@ -222,6 +223,12 @@ void neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target) {
     G->remove_edge(target, source);
     
     handle_deletion(source, target);
+    
+    #ifdef DM_COUNTERS
+        counters::get("matches_per_step").next();
+        counters::get("neighbours_of_u").next();
+        counters::get("u_s").next();
+    #endif
 }
 
 std::vector<std::pair<NodeID, NodeID> > neimansolomon_dyn_matching::getM () {
@@ -307,6 +314,10 @@ void neimansolomon_dyn_matching::match (NodeID u, NodeID v) {
     M.get(Match(u, v))->has_mate = true;
     M.get(Match(v, u))->has_mate = true;
     
+    #ifdef DM_COUNTERS
+        counters::get("matches_per_step").inc();
+    #endif
+    
     //)M.print();
 }
 
@@ -346,6 +357,11 @@ void neimansolomon_dyn_matching::aug_path (NodeID u) {
         match(u, w);
         match(w_, x);
     } else {
+        #ifdef DM_COUNTERS 
+            counters::get("neighbors_of_u").add(N.at(u).allElements().size());
+            counters::get("u_s").inc();
+        #endif
+        
         for (NodeID dummy : N.at(u).allElements()) {
             F.at(dummy).insert(u);
         }

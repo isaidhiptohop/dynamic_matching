@@ -33,7 +33,7 @@
 
 class quality_metrics {
 public:
-    static double matching_similarity (std::vector<std::pair<NodeID, NodeID> > m_one, std::vector<std::pair<NodeID, NodeID> > m_two);
+    static std::vector<std::pair<NodeID, NodeID> > edgeset_intersect (std::vector<std::pair<NodeID, NodeID> > m_one, std::vector<std::pair<NodeID, NodeID> > m_two, int& union_size);
     static bool matching_validation (std::vector<std::pair<NodeID, NodeID> > matching);
 /*
         quality_metrics();

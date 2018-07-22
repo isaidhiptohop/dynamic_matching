@@ -28,8 +28,12 @@
 #include <unordered_map>
 //#include <numeric>
 
-double quality_metrics::matching_similarity (std::vector<std::pair<NodeID, NodeID> > m_one, std::vector<std::pair<NodeID, NodeID> > m_two) {
-    int similar = 0;
+std::vector<std::pair<NodeID, NodeID> > quality_metrics::edgeset_intersect (
+    std::vector<std::pair<NodeID, NodeID> > m_one, 
+    std::vector<std::pair<NodeID, NodeID> > m_two, 
+    int& union_size
+) {
+    std::vector<std::pair<NodeID, NodeID> > intersect;
     
     std::sort(
         m_one.begin(), 
@@ -52,7 +56,7 @@ double quality_metrics::matching_similarity (std::vector<std::pair<NodeID, NodeI
     while (i < m_one.size() && j < m_two.size()) {
         if (m_one.at(i).first == m_two.at(j).first) {
             if (m_one.at(i).second == m_two.at(j).second) {
-                similar++;
+                intersect.push_back(m_one.at(i));
             }
             
             ++i;
@@ -64,14 +68,9 @@ double quality_metrics::matching_similarity (std::vector<std::pair<NodeID, NodeI
         }
     }
     
-    double divisor = m_one.size() + m_two.size() - similar; // | A u B | = | A | + | B | - | A n B |
-    double similarity = 0;
-    
-    if (divisor != 0) {
-        similarity = (1.0 * similar) / divisor;
-    }
-    
-    return similarity;
+    // return union_size as reference
+    union_size = m_one.size() + m_two.size() - intersect.size(); // | A u B | = | A | + | B | - | A n B |
+    return intersect;
 }
 
 bool quality_metrics::matching_validation (std::vector<std::pair<NodeID, NodeID> > matching) {
