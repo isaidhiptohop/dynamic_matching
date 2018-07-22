@@ -50,7 +50,7 @@ std::vector<std::string> sequence::split (const std::string& input, const char& 
     return substrings;
 }
 
-void sequence::load_from_file() {
+std::pair<NodeID, NodeID> sequence::load_from_file() {
     std::ifstream input(ifile);
     std::string line;
     
@@ -60,6 +60,9 @@ void sequence::load_from_file() {
 //    input.open();
     long n_buf = -1;
     long k_buf = -1;
+    
+    NodeID max_u = 0;
+    NodeID max_v = 0;
     
     size_t i = 0;
 //    int skipped = 0;
@@ -87,9 +90,12 @@ void sequence::load_from_file() {
                 if (!(i % 10000)) std::cout << i << "/" << k_buf << " read..." << std::endl;
                 std::vector<std::string> substrings = split(line, ' ');
                 
-                // n counts from 0 to n, the koblenz format starts counting from 0, therefore we substract 1
+                // n counts from 0 to n, the koblenz format starts counting from 1, therefore we substract 1
                 NodeID u = atoi(substrings.at(0).c_str()) - 1;
                 NodeID v = atoi(substrings.at(1).c_str()) - 1;
+                
+                if (u > max_u && u < n) max_u = u;
+                if (v > max_v && v < n) max_v = v;
                 
                 if (substrings.size() >= 4) {
                     int timestamp = atoi(substrings.at(3).c_str());
@@ -114,6 +120,8 @@ void sequence::load_from_file() {
         throw new std::string("could not find file " + ifile);
     }
     
+    std::pair<unsigned, unsigned> result({max_u, max_v});
+    
     // now we sort edges_buf by timestamp using std::sort
     
     std::sort(
@@ -136,16 +144,20 @@ void sequence::load_from_file() {
     }
     
     std::cout << "k after file read is " << k << std::endl;
+    
+    return result;
 }
 
 // only_addition, random, sliding_window, meyerhenke
 void sequence::create () {
     if (built) return;
     
+    std::pair<unsigned, unsigned> max_n;
+    
     if (ifile == "") {
         std::cout << "creating " << MODE_NAMES[mode] << " sequence from seed... " << std::endl;
     } else {
-        load_from_file();
+        max_n = load_from_file();
     }
     
     ofile << "# " << n << std::endl;

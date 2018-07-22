@@ -42,7 +42,7 @@ public:
     sequence (size_t n, size_t k, MODE mode, size_t window, std::string ifile);
     
     std::vector<std::string> split (const std::string& input, const char& mark);
-    void load_from_file ();
+    std::pair<NodeID, NodeID> load_from_file ();
     std::pair<NodeID, NodeID> create_edge (const random_functions& rng);
     
     void create();

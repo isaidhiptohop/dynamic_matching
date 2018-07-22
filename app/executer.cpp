@@ -160,7 +160,7 @@ std::string get_output_filename (ex_config conf) {
     
     output = "output/" + output;
     
-    std::cout << "printing output to file: " << output << std::endl;
+    std::cout << "printing output to directory: " << output << "/" << std::endl;
     
     return output;
 }
