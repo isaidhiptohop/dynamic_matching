@@ -19,6 +19,10 @@
 
 #include "neimansolomon_dyn_matching.h"
 
+#ifdef DM_COUNTERS
+    #include "counters.h"
+#endif
+
 //========================// Match struct methods //========================//
 
 neimansolomon_dyn_matching::Match::Match () {
@@ -142,7 +146,13 @@ neimansolomon_dyn_matching::neimansolomon_dyn_matching (dyn_graph_access* G) : d
     F.resize(G->number_of_nodes(), Fv(G->number_of_nodes()));
     
     #ifdef DM_COUNTERS
-        counters::new_value_list("matches_per_step");
+        counters::new_counter("matches_per_step_ns");
+        counters::new_counter("neighbours_of_u");
+        counters::new_counter("u_s");
+        counters::new_counter("easy_insert_ns");
+        counters::new_counter("complex_insert_aug_path");
+        counters::new_counter("complex_insert_is_free");
+        counters::new_counter("remove_matched_edge_ns");
     #endif
 }
 
@@ -153,10 +163,6 @@ EdgeID neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target) {
     EdgeID e_bar = G->new_edge(target, source);
     
     handle_addition(source, target);
-    
-    #ifdef DM_COUNTERS
-        counters::get("matches_per_step").next();
-    #endif
     
     return e;
 }
@@ -181,6 +187,10 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
     
     if (is_free(u) && is_free(v)) { // if both are free...
         match(u, v);                 // match them!
+        
+        #ifdef DM_COUNTERS
+            counters::get("easy_insert_ns").inc();
+        #endif
     } else if (is_free(u) || is_free(v)) {
         // if u is free, then the code works out fine,
         // otherwise we simply swap u and v, in order
@@ -207,7 +217,13 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
             // to          u---v - v_---v_free
             match(u, v);
             match(v_, get_free(v_));
+            #ifdef DM_COUNTERS
+                counters::get("complex_insert_aug_path").inc();
+            #endif
         } else {
+            #ifdef DM_COUNTERS
+                counters::get("complex_insert_is_free").inc();
+            #endif
             // tell all neighbours of u, that u is free
             for (NodeID w : N.at(u).allElements()) {
                 F.at(w).insert(u);
@@ -223,12 +239,6 @@ void neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target) {
     G->remove_edge(target, source);
     
     handle_deletion(source, target);
-    
-    #ifdef DM_COUNTERS
-        counters::get("matches_per_step").next();
-        counters::get("neighbours_of_u").next();
-        counters::get("u_s").next();
-    #endif
 }
 
 std::vector<std::pair<NodeID, NodeID> > neimansolomon_dyn_matching::getM () {
@@ -315,7 +325,7 @@ void neimansolomon_dyn_matching::match (NodeID u, NodeID v) {
     M.get(Match(v, u))->has_mate = true;
     
     #ifdef DM_COUNTERS
-        counters::get("matches_per_step").inc();
+        counters::get("matches_per_step_ns").inc();
     #endif
     
     //)M.print();
@@ -358,7 +368,7 @@ void neimansolomon_dyn_matching::aug_path (NodeID u) {
         match(w_, x);
     } else {
         #ifdef DM_COUNTERS 
-            counters::get("neighbors_of_u").add(N.at(u).allElements().size());
+            counters::get("neighbours_of_u").add(N.at(u).allElements().size());
             counters::get("u_s").inc();
         #endif
         
@@ -461,9 +471,24 @@ void neimansolomon_dyn_matching::handle_deletion (NodeID u, NodeID v) {
                 }
             } while (surrogated);
         }
+        
+        #ifdef DM_COUNTERS
+            counters::get("remove_matched_edge_ns").inc();
+        #endif
     }
 }
 
+void neimansolomon_dyn_matching::counters_next() {
+    #ifdef DM_COUNTERS
+        counters::get("matches_per_step_ns").next();
+        counters::get("neighbours_of_u").next();
+        counters::get("u_s").next();
+        counters::get("easy_insert_ns").next();
+        counters::get("complex_insert_aug_path").next();
+        counters::get("complex_insert_is_free").next();
+        counters::get("remove_matched_edge_ns").next();
+    #endif
+}
 
 std::ostream& operator<<(std::ostream& o, const neimansolomon_dyn_matching::Match& rop) {
     return rop.print(o);

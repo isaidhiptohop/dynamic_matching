@@ -1,4 +1,8 @@
 #include "baswanaguptasen_dyn_matching.h"
+
+#ifdef DM_COUNTERS
+    #include "counters.h"
+#endif
 /*
 int RNG::nextInt (int lb, int rb) {
     std::uniform_int_distribution<unsigned int> A(lb, rb);
@@ -9,7 +13,7 @@ int RNG::nextInt (int lb, int rb) {
 baswanaguptasen_dyn_matching::baswanaguptasen_dyn_matching (dyn_graph_access* G) :
 dyn_matching(G) {
     O.resize(G->number_of_nodes());
-    levels.resize(G->number_of_nodes());
+    levels.resize(G->number_of_nodes(), 0);
     
     M.start_construction(G->number_of_nodes());
     
@@ -19,6 +23,12 @@ dyn_matching(G) {
     
     M.finish_construction();
     
+    #ifdef DM_COUNTERS
+        counters::new_counter("matches_per_step_bgs"); // counts calls on function match() for bgs
+        counters::new_counter("insert_lvl1"); // counts insertions, where one vertex was at lvl 1
+        counters::new_counter("easy_insert_bgs"); // counts simple insertions where u,v was matched
+        counters::new_counter("too_many_edges_bgs"); // counts cases in which an invariant was violated and has to be restored
+    #endif
 //    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 //    rng.setSeed(a);
 }
@@ -98,6 +108,10 @@ void baswanaguptasen_dyn_matching::match (NodeID u, NodeID v) {
     ASSERT_TRUE(M.getEdgesFromNode(v).size() == 0);
     M.new_edge(u, v);
     M.new_edge(v, u);
+    
+    #ifdef DM_COUNTERS
+        counters::get("matches_per_step_bgs").inc();
+    #endif
 }
 
 void baswanaguptasen_dyn_matching::unmatch (NodeID u, NodeID v) {
@@ -111,8 +125,16 @@ void baswanaguptasen_dyn_matching::handle_addition (NodeID u, NodeID v) {
     if (level(u) == 1) {
 //        ASSERT_TRUE(level(v) == 0);
         O.at(u).insert({v, v});
+        
+        #ifdef DM_COUNTERS
+            counters::get("insert_lvl1").inc();
+        #endif
     } else if (level(v) == 1) {
         O.at(v).insert({u, u});
+        
+        #ifdef DM_COUNTERS
+            counters::get("insert_lvl1").inc();
+        #endif
     } else { // both at level 0
         handling_insertion(u, v);
     }
@@ -130,6 +152,10 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
     // if both nodes are free, simply match them
     if (is_free(u) && is_free(v)) {
         match(u, v);
+        
+        #ifdef DM_COUNTERS
+            counters::get("easy_insert_bgs").inc();
+        #endif
     }
     
     // swap the nodes, so that u owns more edges than v
@@ -166,6 +192,10 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
         
         delete x;
         delete w;
+        
+        #ifdef DM_COUNTERS
+            counters::get("too_many_edges_bgs").inc();
+        #endif
     }
 }
 
@@ -316,3 +346,11 @@ void baswanaguptasen_dyn_matching::naive_settle (NodeID u) {
     }
 }
 
+void baswanaguptasen_dyn_matching::counters_next() {
+    #ifdef DM_COUNTERS
+        counters::get("matches_per_step_bgs").next();
+        counters::get("insert_lvl1").next();
+        counters::get("easy_insert_bgs").next();
+        counters::get("too_many_edges_bgs").next();
+    #endif
+}

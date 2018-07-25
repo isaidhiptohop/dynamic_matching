@@ -42,6 +42,8 @@ public:
     
     virtual std::vector<std::pair<NodeID, NodeID> > getM () = 0;
     
+    virtual void counters_next() = 0;
+    
 protected:
     dyn_graph_access* G;
 };

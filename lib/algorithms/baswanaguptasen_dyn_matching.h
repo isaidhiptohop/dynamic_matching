@@ -48,6 +48,8 @@ public:
     
     virtual std::vector<std::pair<NodeID, NodeID> > getM ();
     
+    virtual void counters_next();
+    
 private:
     // O_u denotes the set of edges owned by u. we save those
     // edges by simply saving the edges endpoint, since every

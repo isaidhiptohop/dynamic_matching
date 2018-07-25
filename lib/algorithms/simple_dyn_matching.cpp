@@ -18,6 +18,10 @@
  *****************************************************************************/
 
 #include "simple_dyn_matching.h"
+
+#ifdef DM_COUNTERS
+    #include "counters.h"
+#endif
 /*
 int RNG::nextInt (int lb, int rb) {
     std::uniform_int_distribution<unsigned int> A(lb, rb);
@@ -36,6 +40,10 @@ simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn
 
     this->eps = eps;
     
+    #ifdef DM_COUNTERS
+        counters::new_counter(std::string("matches_per_step_simple" + std::to_string(eps)));
+        counters::new_counter(std::string("solve_conflict" + std::to_string(eps)));
+    #endif
 //    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 //        auto a = std::chrono::system_clock::now();
 //    rng.setSeed(a);
@@ -107,15 +115,6 @@ bool simple_dyn_matching::isMatched (NodeID source, NodeID target) {
 }
 
 void simple_dyn_matching::match (NodeID u, NodeID v) {
-    /*
-    if (M.getNodeDegree(u) != 0) {
-        std::cout << "matching fails on " << u << " which has already " << M.getNodeDegree(u) << " matched edges: " << getMatchedEdge(u) << std::endl;
-    }
-    
-    if (M.getNodeDegree(v) != 0) {
-        std::cout << "matching fails on " << v << " which has already " << M.getNodeDegree(v) << " matched edges: " << getMatchedEdge(v) << std::endl;
-    }
-    */
     ASSERT_TRUE(M.getNodeDegree(u) == 0);
     ASSERT_TRUE(M.getNodeDegree(v) == 0);
     ASSERT_TRUE(!isMatched(u, v));
@@ -124,6 +123,10 @@ void simple_dyn_matching::match (NodeID u, NodeID v) {
     ASSERT_TRUE(isMatched(u, v));
     ASSERT_TRUE(M.getNodeDegree(u) == 1);
     ASSERT_TRUE(M.getNodeDegree(v) == 1);
+    
+    #ifdef DM_COUNTERS
+        counters::get(std::string("matches_per_step_simple" + std::to_string(eps))).inc();
+    #endif
 }
 
 void simple_dyn_matching::unmatch (NodeID u, NodeID v) {
@@ -187,5 +190,15 @@ void simple_dyn_matching::solve_conflict (NodeID u, int step) {
         // no conflict, no trouble. simply add the edge to the matching.
         match(u,v);
     }
+    
+    #ifdef DM_COUNTERS
+        counters::get(std::string("solve_conflict" + std::to_string(eps))).inc();
+    #endif
 }
 
+void simple_dyn_matching::counters_next() {
+    #ifdef DM_COUNTERS
+        counters::get(std::string("matches_per_step_simple" + std::to_string(eps))).next();
+        counters::get(std::string("solve_conflict" + std::to_string(eps))).next();
+    #endif
+}

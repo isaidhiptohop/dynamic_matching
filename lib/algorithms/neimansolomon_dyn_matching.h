@@ -81,6 +81,8 @@ public:
     
     virtual std::vector<std::pair<NodeID, NodeID> > getM ();
     
+    virtual void counters_next();
+    
 private:
     // the matching M
     avl_tree<Match> M;

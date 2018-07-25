@@ -46,6 +46,8 @@ public:
     
     virtual std::vector<std::pair<NodeID, NodeID> > getM ();
     
+    virtual void counters_next();
+    
 private:
     dyn_graph_access M;
     double eps;

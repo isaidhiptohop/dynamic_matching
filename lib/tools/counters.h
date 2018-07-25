@@ -1,76 +1,42 @@
+#ifndef COUNTERS_H
+#define COUNTERS_H
+
 #include <vector>
 
 #include "definitions.h"
+#include "macros_assertions.h"
 
 class counters {
+public:
     struct counter {
+        bool restarted;
         
-    };
-    
-    struct simple_counter : public counter {
-        size_t value = 0;
+        std::vector<size_t> records;
+        size_t iterator;
         
-        size_t inc ();
-        size_t dec ();
+        counter ();
+        
+        void inc ();
+        void dec ();
+        void next ();
+        void next (size_t value);
+        void add (size_t value);
+        void put (size_t value);
         size_t get ();
+        std::vector<size_t>& all ();
         
-        size_t reset ();
+        void reset ();
+        void restart ();
     };
-    
-    struct value_list : public counter {
-        std::vector<size_t> values; // default constructor of vector creates empty list
-        
-        std::vector<size_t> put (size_t value);
-        std::vector<size_t> add (size_t value);
-        std::vector<size_t> next ();
-        std::vector<size_t> inc ();
-        std::vector<size_t> dec ();
-        std::vector<size_t> get ();
-        
-        std::vector<size_t> reset ();
-    };
-    /*
-    struct dvalue_list : public counter {
-        std::vector<double> values;
-        
-        std::vector<double> put (double value);
-        std::vector<double> dec ();
-        std::vector<double> get ();
-        
-        std::vector<double> reset ();
-    };
-    
-    struct value_matrix : public counter {
-        std::vector<std::vector<size_t> > values; // default constructor of vector creates empty list
-        
-        std::vector<std::vector<size_t> > put (std::vector<size_t> values);
-        std::vector<std::vector<size_t> > put (size_t value);
-        std::vector<std::vector<size_t> > next ();
-        std::vector<std::vector<size_t> > dec ();
-        std::vector<std::vector<size_t> > get ();
-        
-        std::vector<std::vector<size_t> > reset ();
-    };
-    
-    struct dvalue_matrix : public counter {
-        std::vector<std::vector<double> > values;
-        
-        std::vector<std::vector<double> > put (std::vector<double> values);
-        std::vector<std::vector<double> > dec ();
-        std::vector<std::vector<double> > get ();
-        
-        std::vector<std::vector<double> > reset ();
-    };
-    */
     
     static std::vector<std::pair<std::string, counter> > registered_counters;
     
-    static counter& new_simple_counter (const std::string& name);
-    static counter& new_value_list (const std::string& name);
-    /*
-    static counter& new_dvalue_list (const std::string& name);
-    static counter& new_value_matrix (const std::string& name);
-    static counter& new_dvalue_matrix (const std::string& name);
-    */
+    static std::vector<std::pair<std::string, counter> > get_all();
+    static counter& new_counter (const std::string& name);
+    static bool exists (const std::string& name);
     static counter& get(const std::string& name);
+    static void divide_by (size_t divisor);
+    static void print (std::ostream& o);
 };
+
+#endif // COUNTERS_H
