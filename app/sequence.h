@@ -32,7 +32,7 @@
 #include <chrono>
 
 
-enum MODE {only_addition, random_step, sliding_window, meyerhenke};
+enum MODE {only_addition, random_step, sliding_window, meyerhenke, native};
 extern std::vector<std::string> MODE_NAMES;
 
 class sequence {
@@ -43,7 +43,7 @@ public:
     
     std::vector<std::string> split (const std::string& input, const char& mark);
     std::pair<NodeID, NodeID> load_from_file ();
-    std::pair<NodeID, NodeID> create_edge (const random_functions& rng);
+    std::pair<int, std::pair<NodeID, NodeID> > create_edge (const random_functions& rng);
     
     void create();
     void finish();
@@ -52,6 +52,7 @@ public:
     void create_random_seq();
     void create_sliding_window_seq();
     void create_meyerhenke_seq();
+    void create_native_seq();
     
     std::string get_name();
     void print_last();
@@ -72,7 +73,7 @@ private:
     
     bool built;
     
-    std::vector<std::pair<NodeID, NodeID> > buf;
+    std::vector<std::pair<int, std::pair<NodeID, NodeID> > > buf;
     size_t it;
     
     std::vector<std::pair<int, std::pair<NodeID, NodeID> > > edge_sequence;

@@ -1,6 +1,6 @@
 #include "sequence.h"
 
-std::vector<std::string> MODE_NAMES = {"addition-only", "random-step", "sliding-window", "meyerhenke"};
+std::vector<std::string> MODE_NAMES = {"addition-only", "random-step", "sliding-window", "meyerhenke", "native"};
 
 sequence::sequence (size_t n, size_t k, MODE mode, size_t window, long seed, std::string ifile) {
     this->n = n;
@@ -55,7 +55,7 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
     std::string line;
     
     int lineCount = 0;
-    std::vector<std::pair<int, std::pair<NodeID, NodeID> > > from_file;
+    std::vector<std::pair<std::pair<int, int>, std::pair<NodeID, NodeID> > > from_file;
     
 //    input.open();
     long n_buf = -1;
@@ -94,19 +94,22 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
                 NodeID u = atoi(substrings.at(0).c_str()) - 1;
                 NodeID v = atoi(substrings.at(1).c_str()) - 1;
                 
+                if (u == v) continue;
+                
                 if (u > max_u && u < n) max_u = u;
                 if (v > max_v && v < n) max_v = v;
                 
                 if (substrings.size() >= 4) {
+                    int addition = (atoi(substrings.at(2).c_str()) < 0 ? 0 : 1);
                     int timestamp = atoi(substrings.at(3).c_str());
                     
                     if (u < n && v < n && u != v) {
-                        from_file.push_back({timestamp, {u, v}});
+                        from_file.push_back({{timestamp, addition}, {u, v}});
                         i++;
                     }
                 } else {
                     if (u < n && v < n && u != v) {
-                        from_file.push_back({i, {u, v}});
+                        from_file.push_back({{i, 1}, {u, v}});
                         i++;
                     }
                 }
@@ -120,6 +123,8 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
         throw new std::string("could not find file " + ifile);
     }
     
+    std::cout << "nodes: " << max_u << " " << max_v << std::endl;
+    
     std::pair<unsigned, unsigned> result({max_u, max_v});
     
     // now we sort edges_buf by timestamp using std::sort
@@ -127,13 +132,13 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
     std::sort(
         from_file.begin(), 
         from_file.end(), 
-        [](const std::pair<int, std::pair<NodeID, NodeID> >& a, const std::pair<int, std::pair<NodeID, NodeID> >& b) {
-            return a.first < b.first;
+        [](const std::pair<std::pair<int, int>, std::pair<NodeID, NodeID> >& a, const std::pair<std::pair<int, int>, std::pair<NodeID, NodeID> >& b) {
+            return a.first.first < b.first.first;
         }
     );
     
     for (size_t i = 0; i < from_file.size(); ++i) {
-        buf.push_back(from_file.at(i).second);
+        buf.push_back({from_file.at(i).first.second, from_file.at(i).second});
     }
     
     std::cout << "read " << buf.size() << " edges." << std::endl;
@@ -170,6 +175,8 @@ void sequence::create () {
         create_sliding_window_seq();
     } else if (mode == MODE::meyerhenke) {
         create_meyerhenke_seq();
+    } else if (mode == MODE::native) {
+        create_native_seq();
     } else {
         return;
     }
@@ -186,7 +193,7 @@ void sequence::print_last () {
     ofile << edge.first << " " << edge.second.first << " " << edge.second.second << std::endl;
 }
 
-std::pair<NodeID, NodeID> sequence::create_edge (const random_functions& rng) {
+std::pair<int, std::pair<NodeID, NodeID> > sequence::create_edge (const random_functions& rng) {
     if (ifile == "") {
         int u = rng.nextInt(0, n-1);
         int v;
@@ -195,14 +202,28 @@ std::pair<NodeID, NodeID> sequence::create_edge (const random_functions& rng) {
             v = rng.nextInt(0, n-1);
         } while (v == u);
         
-        return std::pair<NodeID, NodeID>({u, v});
+        return std::pair<int, std::pair<NodeID, NodeID> >({1, {u, v}});
     } else {
         if (it < buf.size()) {
-            std::pair<NodeID, NodeID> edge = buf.at(it++);
+            std::pair<int, std::pair<NodeID, NodeID> > edge = buf.at(it++);
             return edge;
         } else {
             throw std::string("no more edge insertions in file: " + std::to_string(it));
         }
+    }
+}
+
+void sequence::create_native_seq() {
+    /* creates a sequence of length k, containing only random additions
+     */
+    random_functions rng;
+    rng.setSeed(seed);
+    
+    for (size_t i = 0; i < k; ++i) {
+        std::pair<int, std::pair<NodeID, NodeID> > edge = create_edge(rng);
+        edge_sequence.push_back(edge);
+        add_count++;
+        print_last();
     }
 }
 
@@ -213,7 +234,7 @@ void sequence::create_only_addition_seq() {
     rng.setSeed(seed);
     
     for (size_t i = 0; i < k; ++i) {
-        std::pair<NodeID, NodeID> edge = create_edge (rng);
+        std::pair<NodeID, NodeID> edge = create_edge(rng).second;
         edge_sequence.push_back({1, edge});
         add_count++;
         print_last();
@@ -236,7 +257,7 @@ void sequence::create_random_seq() {
         }
         
         if (addition) { // if it's an addition, I simply create a random edge with u,v \in [0,n-1]
-            std::pair<NodeID, NodeID> edge = create_edge (rng);
+            std::pair<NodeID, NodeID> edge = create_edge(rng).second;
             edge_sequence.push_back({1, edge});
             additions.push_back(edge);
             add_count++;
@@ -261,7 +282,7 @@ void sequence::create_sliding_window_seq() {
     size_t j = 0;
     
     for ( ; i < window && i < k; i++) {
-        std::pair<NodeID, NodeID> edge = create_edge (rng);
+        std::pair<NodeID, NodeID> edge = create_edge(rng).second;
         edge_sequence.push_back({1, edge});
         additions.push_back(edge);
         add_count++;
@@ -269,7 +290,7 @@ void sequence::create_sliding_window_seq() {
     }
     
     for ( ; i < k - window; i += 2, j++) {
-        std::pair<NodeID, NodeID> edge = create_edge (rng);
+        std::pair<NodeID, NodeID> edge = create_edge(rng).second;
         edge_sequence.push_back({1, edge});
         additions.push_back(edge);
         add_count++;
@@ -298,7 +319,7 @@ void sequence::create_meyerhenke_seq() {
     size_t i = 0;
     
     for (; i < window;) {
-        std::pair<NodeID, NodeID> edge = create_edge(rng);
+        std::pair<NodeID, NodeID> edge = create_edge(rng).second;
         edge_sequence.push_back({1, edge});
         additions.push_back(edge);
         i++;

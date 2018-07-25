@@ -6,4 +6,6 @@ app/output/*
 app/snapshots/*
 app/executer
 app/sequence
+app/compare
+app/gpa_matching
 lib/gpa*

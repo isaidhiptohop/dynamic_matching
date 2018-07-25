@@ -10,6 +10,8 @@
 #include "tools/quality_metrics.h"
 #include "io/graph_io.h"
 
+#include "counters.h"
+
 //#include "../GPAMatching/app/gpa_match.h"
 
 /*

@@ -62,6 +62,8 @@ void get_arguments(int argc, char ** argv, seq_config& conf) {
                 conf.mode = MODE::sliding_window;
             } else if (mode_str == MODE_NAMES[3]) {
                 conf.mode = MODE::meyerhenke;
+            } else if (mode_str == MODE_NAMES[4]) {
+                conf.mode = MODE::native;
             }
             
             i++;

@@ -58,6 +58,9 @@ int main (int argc, char ** argv) {
         std::ofstream matching_file;
         matching_file.open(output_filename + "/matchings");
         
+        std::ofstream counters_file;
+        counters_file.open(output_filename + "/counters");
+        
         mkdir(std::string(output_filename + "/snapshots").c_str(), 0775);
         
         
@@ -121,7 +124,10 @@ int main (int argc, char ** argv) {
         for (int k = 0; k < conf.multi_run; ++k) { // run the whole thing several times
 //            std::cout << "run " << k+1 << "/" << conf.multi_run << std::endl;
             // hold all matchings of one run in vector.
-            size_t m = 0;
+            
+            for (auto c : counters::get_all() ) {
+                c.second.restart();
+            }
             
             for (size_t l = 0; l < algorithms.size(); ++l) { // run different algorithms
 //                std::cout << "running algorithm " << ALGORITHM_NAMES.at(algorithms.at(l)) << std::endl;
@@ -159,6 +165,7 @@ int main (int argc, char ** argv) {
 //                        std::cout << "processed " << i+1 << " of " << edge_sequence.size() << " sequence steps" << std::endl;
                         std::vector<std::pair<NodeID, NodeID> > matching = algorithm->getM();
                         
+                        algorithm->counters_next();
                         
                         // validate the matching to exclude errors in the algorithm
                         quality_metrics::matching_validation(matching);
@@ -170,7 +177,7 @@ int main (int argc, char ** argv) {
                         G->convert_to_graph_access(G_static);
                         graph_io::writeGraph(G_static, std::string(output_filename + "/snapshots/snapshot_" + std::to_string(i+1) + ".graph"));                        
                         
-                        // save data in arrays
+                        // save data in arrays, l = algorithm, j = entry
                         matchings.at(l).at(j) = matching;
                         
                         combined_data.at(l).at(j).at(0) = insertions;
@@ -190,46 +197,6 @@ int main (int argc, char ** argv) {
                         insertions = 0;
                         deletions = 0;
                     }
-                }
-                
-                /* 
-                 * matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm.
-                 * see above for details.
-                 * 
-                 * therefore the size of every subvector in matchings should have the same size, namely the size of the sequence.
-                 * however the size of the calculated matchings inside the subvector can differ.
-                 * 
-                 * in the following if-block we iterate through the sequence steps and compare the matching resutls of different algorithms
-                 * for every time-step.
-                 */
-                
-                if (l >= 1 && m < algorithms.size()) {
-                    // TODO: what does upper_limit mean? why do i need it? i suspect it should be the other way around
-                    size_t upper_limit = matchings.at(m).size() > matchings.at(m+1).size() ? matchings.at(m).size() : matchings.at(m+1).size();
-                    
-                    if (m+1 < algorithms.size()) {
-                        for (size_t i = 0; i < upper_limit; ++i) {
-                            int union_size = 1;
-                            int intersect_size = quality_metrics::edgeset_intersect(matchings.at(m).at(i), matchings.at(m+1).at(i), union_size).size();
-                            
-                            // save intersect size, divide it by two since every edge is hold twice in it
-                            cross_algorithm_matching_intersect.at(m).at(i) = intersect_size/2;
-                            similarity = similarity + (union_size ? ((intersect_size * 1.0) / union_size) : 0); // if union is zero, similarity is zero
-                            sim_counter++;
-                        }
-                    } else { // last algorithm gets compared with first one.
-                        for (size_t i = 0; i < upper_limit; ++i) {
-                            int union_size = 1;
-                            int intersect_size = quality_metrics::edgeset_intersect(matchings.at(m).at(i), matchings.at(0).at(i), union_size).size();
-                            
-                            // save intersect size, divide it by two since every edge is hold twice in it
-                            cross_algorithm_matching_intersect.at(m).at(i) = intersect_size/2;
-                            similarity = similarity + (union_size ? ((intersect_size * 1.0) / union_size) : 0);
-                            sim_counter++;
-                        }
-                    }
-                    
-                    m++;
                 }
                 
                 delete algorithm;
@@ -266,6 +233,60 @@ int main (int argc, char ** argv) {
             previous_matchings = matchings;
             matchings.resize(algorithms.size());
         } // end of multiple runs with the same algorithm
+        
+        counters::divide_by(conf.multi_run);
+        counters::print(counters_file);
+        
+        // = = = = // COLLECT INFORMATION // = = = = //
+        
+            /* 
+             * matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm.
+             * see above for details.
+             * 
+             * therefore the size of every subvector in matchings should have the same size, namely the size of the sequence.
+             * however the size of the calculated matchings inside the subvector can differ.
+             * 
+             * in the following if-block we iterate through the sequence steps and compare the matching resutls of different algorithms
+             * for every time-step.
+             */
+            
+        for (size_t m = 0; m < algorithms.size(); ++m) {
+            // TODO: what does upper_limit mean? why do i need it? i suspect it should be the other way around
+            
+            if (m+1 < algorithms.size()) {
+                size_t upper_limit = matchings.at(m).size() > matchings.at(m+1).size() ? matchings.at(m).size() : matchings.at(m+1).size();
+                for (size_t i = 0; i < upper_limit; ++i) {
+                    int union_size = 1;
+                    int intersect_size = quality_metrics::edgeset_intersect(matchings.at(m).at(i), matchings.at(m+1).at(i), union_size).size();
+                    
+                    // save intersect size, divide it by two since every edge is hold twice in it
+                    cross_algorithm_matching_intersect.at(m).at(i) = intersect_size/2;
+                    /*
+                    std::cout << "comparing " << ALGORITHM_NAMES.at(algorithms.at(m)) 
+                              << " with "     << ALGORITHM_NAMES.at(algorithms.at(m+1)) 
+                              << ": " << intersect_size/2 << std::endl;
+                    */
+                    similarity = similarity + (union_size ? ((intersect_size * 1.0) / union_size) : 0); // if union is zero, similarity is zero
+                    sim_counter++;
+                }
+            } else { // last algorithm gets compared with first one.
+                size_t upper_limit = matchings.at(m).size() > matchings.at(0).size() ? matchings.at(m).size() : matchings.at(0).size();
+                for (size_t i = 0; i < upper_limit; ++i) {
+                    int union_size = 1;
+                    int intersect_size = quality_metrics::edgeset_intersect(matchings.at(m).at(i), matchings.at(0).at(i), union_size).size();
+                    
+                    // save intersect size, divide it by two since every edge is hold twice in it
+                    cross_algorithm_matching_intersect.at(m).at(i) = intersect_size/2;
+                    /*
+                    std::cout << "comparing " << ALGORITHM_NAMES.at(algorithms.at(m)) 
+                              << " with "     << ALGORITHM_NAMES.at(algorithms.at(0)) 
+                              << ": " << intersect_size/2 << std::endl;
+                    */
+                    similarity = similarity + (union_size ? ((intersect_size * 1.0) / union_size) : 0);
+                    sim_counter++;
+                }
+            }
+        }
         
         std::vector<double> total_cross_run_similarities(algorithms.size(), 0);
         std::vector<int> total_cross_run_sim_counters(algorithms.size(), 0);

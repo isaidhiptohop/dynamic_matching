@@ -49,11 +49,7 @@ int main (int argc, char ** argv) {
     
     while (gpa_matchings_io.next_gpa_matching(matching)) {
         gpa_matchings.push_back(matching);
-        std::cout << gpa_matchings_io.input.eof() << " " << matching.size() << std::endl;
     }
-    
-    std::cout << gpa_matchings.size() << " matchings" << std::endl;
-    
     
     std::vector<std::vector<int> > results (gpa_matchings.size());
     
@@ -78,8 +74,6 @@ int main (int argc, char ** argv) {
             */
             j++;
         }
-        
-        std::cout << j << " matchings" << std::endl;
         
         matchings.reset();
     }
