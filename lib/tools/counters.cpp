@@ -124,25 +124,27 @@ void counters::divide_by (size_t divisor) {
 }
 
 void counters::print (std::ostream& o) {
-    size_t max_size = get_all().at(0).second.all().size();
-    size_t min_size = get_all().at(0).second.all().size();
-    
-    for (auto c : get_all() ) {
-        o << "# ";
-        o << c.first << " ";
-        o << std::endl;
+    if (get_all().size() > 0) {
+        size_t max_size = get_all().at(0).second.all().size();
+        size_t min_size = get_all().at(0).second.all().size();
         
-        if (c.second.all().size() > max_size) max_size = c.second.all().size();
-        if (c.second.all().size() < min_size) min_size = c.second.all().size();
-    }
-    
-    if (max_size != min_size) std::cout << "there might be something wrong with the counters: " << min_size << " vs " << max_size << std::endl;
-        
-    for (size_t i = 0; i < max_size; ++i) {
         for (auto c : get_all() ) {
-            o << c.second.all().at(i) << " ";
+            o << "# ";
+            o << c.first << " ";
+            o << std::endl;
+            
+            if (c.second.all().size() > max_size) max_size = c.second.all().size();
+            if (c.second.all().size() < min_size) min_size = c.second.all().size();
         }
         
-        o << std::endl;
+        if (max_size != min_size) std::cout << "there might be something wrong with the counters: " << min_size << " vs " << max_size << std::endl;
+            
+        for (size_t i = 0; i < max_size; ++i) {
+            for (auto c : get_all() ) {
+                o << c.second.all().at(i) << " ";
+            }
+            
+            o << std::endl;
+        }
     }
 }
