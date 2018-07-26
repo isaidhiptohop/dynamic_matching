@@ -1,0 +1,1 @@
+f5fpc -s -t vpn.univie.ac.at -u a1302451 -d /etc/ssl/certs/
