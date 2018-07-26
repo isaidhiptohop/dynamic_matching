@@ -18,6 +18,8 @@ sequence::sequence (size_t n, size_t k, MODE mode, size_t window, long seed, std
         this->seed = seed;
     }
     
+    helper = 0;
+    
     this->ifile = ifile;
     
     add_count = 0;
@@ -86,6 +88,7 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
                     }
                 }
             } else if (line.size() != 0 && line.at(0) != '%') {
+//                if (helper++ % 10) { i++; continue; }
                 if (i >= k) break;
                 if (!(i % 10000)) std::cout << i << "/" << k_buf << " read..." << std::endl;
                 std::vector<std::string> substrings = split(line, ' ');

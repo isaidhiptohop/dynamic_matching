@@ -71,6 +71,8 @@ private:
     size_t add_count;
     size_t del_count;
     
+    int helper;
+    
     bool built;
     
     std::vector<std::pair<int, std::pair<NodeID, NodeID> > > buf;

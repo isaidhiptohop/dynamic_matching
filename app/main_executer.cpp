@@ -135,13 +135,13 @@ int main (int argc, char ** argv) {
                 dyn_matching * algorithm = init_algorithm(algorithms.at(l), G, eps.at(l));
                 
                 // initalize timer and counters
-                timer t;
                 double time_elapsed = 0;
                 int insertions = 0;
                 int deletions = 0;
                 int j = 0; // counter for entries in data vectors. from range 0 to result_size
                 
                 for (size_t i = 0; i < edge_sequence.size(); ++i) { // iterate through sequence
+                    timer t;
                     std::pair<NodeID, NodeID> edge = edge_sequence.at(i).second;
                     
                     /* determine whether to do an insertion or a deletion */
