@@ -1,6 +1,6 @@
 #include "counters.h"
 
-std::vector<std::pair<std::string, counters::counter> > counters::registered_counters;
+std::vector<std::pair<std::string, counters::counter_set> > counters::counter_sets;
 
 counters::counter::counter () { 
     records = std::vector<size_t>();
@@ -81,11 +81,11 @@ void counters::counter::restart () {
     iterator = 0;
 }
 
-std::vector<std::pair<std::string, counters::counter> > counters::get_all () {
+std::vector<std::pair<std::string, counters::counter> > counters::counter_set::all () {
     return registered_counters;
 }
 
-counters::counter& counters::new_counter (const std::string& name) {
+counters::counter& counters::counter_set::create (const std::string& name) {
     if (exists(name)) {
         get(name).restart();
         return get(name);
@@ -95,7 +95,7 @@ counters::counter& counters::new_counter (const std::string& name) {
     return registered_counters.back().second;
 }
 
-bool counters::exists (const std::string& name) {
+bool counters::counter_set::exists (const std::string& name) {
     for (int i = 0; i < registered_counters.size(); ++i) {
         if (registered_counters.at(i).first == name) {
             return true;
@@ -105,17 +105,17 @@ bool counters::exists (const std::string& name) {
     return false;
 }
 
-counters::counter& counters::get (const std::string& name) {
+counters::counter& counters::counter_set::get (const std::string& name) {
     for (int i = 0; i < registered_counters.size(); ++i) {
         if (registered_counters.at(i).first == name) {
             return registered_counters.at(i).second;
         }
     }
     
-    ASSERT_TRUE(false);
+    throw std::string("counter \"" + name + "\" not found.");
 }
 
-void counters::divide_by (size_t divisor) {
+void counters::counter_set::divide_by (size_t divisor) {
     for (size_t i = 0; i < registered_counters.size(); ++i) {
         for (size_t j = 0; j < registered_counters.at(i).second.records.size(); ++j) {
             registered_counters.at(i).second.records.at(j) = (1.0 * registered_counters.at(i).second.records.at(j)) / divisor;
@@ -123,12 +123,12 @@ void counters::divide_by (size_t divisor) {
     }
 }
 
-void counters::print (std::ostream& o) {
-    if (get_all().size() > 0) {
-        size_t max_size = get_all().at(0).second.all().size();
-        size_t min_size = get_all().at(0).second.all().size();
+void counters::counter_set::print (std::ostream& o) {
+    if (all().size() > 0) {
+        size_t max_size = all().at(0).second.all().size();
+        size_t min_size = all().at(0).second.all().size();
         
-        for (auto c : get_all() ) {
+        for (auto c : all() ) {
             o << "# ";
             o << c.first << " ";
             o << std::endl;
@@ -140,11 +140,46 @@ void counters::print (std::ostream& o) {
         if (max_size != min_size) std::cout << "there might be something wrong with the counters: " << min_size << " vs " << max_size << std::endl;
             
         for (size_t i = 0; i < max_size; ++i) {
-            for (auto c : get_all() ) {
+            for (auto c : all() ) {
                 o << c.second.all().at(i) << " ";
             }
             
             o << std::endl;
         }
     }
+}
+
+
+std::vector<std::pair<std::string, counters::counter_set> > counters::all () {
+    return counter_sets;
+}
+
+counters::counter_set& counters::create (const std::string& name) {
+    if (exists(name)) {
+//            get(name).restart();
+        return get(name);
+    }
+    
+    counter_sets.push_back({name, counter_set()});
+    return counter_sets.back().second;
+}
+
+bool counters::exists (const std::string& name) {
+    for (int i = 0; i < counter_sets.size(); ++i) {
+        if (counter_sets.at(i).first == name) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+counters::counter_set& counters::get (const std::string& name) {
+    for (int i = 0; i < counter_sets.size(); ++i) {
+        if (counter_sets.at(i).first == name) {
+            return counter_sets.at(i).second;
+        }
+    }
+    
+    throw std::string("counter set \"" + name + "\" not found.");
 }

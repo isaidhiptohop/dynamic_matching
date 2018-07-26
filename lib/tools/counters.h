@@ -29,14 +29,24 @@ public:
         void restart ();
     };
     
-    static std::vector<std::pair<std::string, counter> > registered_counters;
+    struct counter_set {
+        std::vector<std::pair<std::string, counter> > registered_counters;
+        
+        std::vector<std::pair<std::string, counter> > all();
+        counter& create (const std::string& name);
+        bool exists (const std::string& name);
+        counter& get(const std::string& name);
+        void divide_by (size_t divisor);
+        void print (std::ostream& o);
+    };
     
-    static std::vector<std::pair<std::string, counter> > get_all();
-    static counter& new_counter (const std::string& name);
+    static std::vector<std::pair<std::string, counter_set> > all();
+    static counter_set& create (const std::string& name);
     static bool exists (const std::string& name);
-    static counter& get(const std::string& name);
-    static void divide_by (size_t divisor);
-    static void print (std::ostream& o);
+    static counter_set& get(const std::string& name);
+    
+private:
+    static std::vector<std::pair<std::string, counter_set> > counter_sets;
 };
 
 #endif // COUNTERS_H
