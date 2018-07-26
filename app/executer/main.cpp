@@ -124,11 +124,11 @@ int main (int argc, char ** argv) {
         for (int k = 0; k < conf.multi_run; ++k) { // run the whole thing several times
 //            std::cout << "run " << k+1 << "/" << conf.multi_run << std::endl;
             // hold all matchings of one run in vector.
-            
+            /*
             for (auto c : counters::get_all() ) {
                 c.second.restart();
             }
-            
+            */
             for (size_t l = 0; l < algorithms.size(); ++l) { // run different algorithms
 //                std::cout << "running algorithm " << ALGORITHM_NAMES.at(algorithms.at(l)) << std::endl;
                 dyn_graph_access * G = create_graph(n);
@@ -233,10 +233,10 @@ int main (int argc, char ** argv) {
             previous_matchings = matchings;
             matchings.resize(algorithms.size());
         } // end of multiple runs with the same algorithm
-        
+        /*
         counters::divide_by(conf.multi_run);
         counters::print(counters_file);
-        
+        */
         // = = = = // COLLECT INFORMATION // = = = = //
         
             /* 
