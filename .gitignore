@@ -3,10 +3,12 @@
 *.out
 *.gch
 *.sequence
+*.graph
 
 deploy/output/*
 deploy/snapshots/*
 deploy/sequences/*
+deploy/konect/*
 
 app/executer/executer
 app/sequencer/sequencer
