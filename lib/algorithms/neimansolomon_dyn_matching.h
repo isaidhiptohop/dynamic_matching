@@ -31,6 +31,7 @@
 #include "dyn_matching.h"
 #include "avl_tree.h"
 #include "maxNodeHeap.h"
+#include "timer.h"
 
 class neimansolomon_dyn_matching : public dyn_matching {
 public:
@@ -75,9 +76,9 @@ public:
     
     neimansolomon_dyn_matching (dyn_graph_access* G);
     
-    virtual EdgeID new_edge(NodeID source, NodeID target);
+    virtual EdgeID new_edge(NodeID source, NodeID target, double& elapsed);
     
-    virtual void remove_edge(NodeID source, NodeID target);
+    virtual void remove_edge(NodeID source, NodeID target, double& elapsed);
     
     virtual std::vector<std::pair<NodeID, NodeID> > getM ();
     

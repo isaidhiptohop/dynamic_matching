@@ -21,7 +21,6 @@
 
 #ifdef DM_COUNTERS
     #include "counters.h"
-    #include "timer.h"
 #endif
 
 //========================// Match struct methods //========================//
@@ -172,25 +171,23 @@ neimansolomon_dyn_matching::neimansolomon_dyn_matching (dyn_graph_access* G) : d
     #endif
 }
 
-EdgeID neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target) {
+EdgeID neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
     // first add the node to the data structure G;
-    #ifdef DM_COUNTERS
-        timer t;
-    #endif
+    timer t;
     
     EdgeID e = G->new_edge(source, target);
     EdgeID e_bar = G->new_edge(target, source);
     
     #ifdef DM_COUNTERS
-        double elapsed = t.elapsed();
+        elapsed = t.elapsed();
         counters::get("ns").get_d("rt_in_G").add(elapsed);
-        t.restart();
     #endif
     
+    t.restart();
     handle_addition(source, target);
+    elapsed = t.elapsed();
     
     #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
         counters::get("ns").get_d("rt_in").add(elapsed);
     #endif
     
@@ -261,24 +258,22 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
     }
 }
     
-void neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target) {
-    #ifdef DM_COUNTERS
-        timer t;
-    #endif
+void neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
+    timer t;
     
     G->remove_edge(source, target);
     G->remove_edge(target, source);
     
     #ifdef DM_COUNTERS
-        double elapsed = t.elapsed();
+        elapsed = t.elapsed();
         counters::get("ns").get_d("rt_out_G").add(elapsed);
-        t.restart();
     #endif
     
+    t.restart();
     handle_deletion(source, target);
+    elapsed = t.elapsed();
     
     #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
         counters::get("ns").get_d("rt_out").add(elapsed);
     #endif
 }

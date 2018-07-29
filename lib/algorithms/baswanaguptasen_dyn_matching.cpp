@@ -2,7 +2,6 @@
 
 #ifdef DM_COUNTERS
     #include "counters.h"
-    #include "timer.h"
 #endif
 /*
 int RNG::nextInt (int lb, int rb) {
@@ -41,49 +40,45 @@ baswanaguptasen_dyn_matching::~baswanaguptasen_dyn_matching() {
 //    delete G;
 }
 
-EdgeID baswanaguptasen_dyn_matching::new_edge(NodeID source, NodeID target) {
-    #ifdef DM_COUNTERS
-        timer t;
-    #endif
+EdgeID baswanaguptasen_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
+    timer t;
     
     // first add the node to the data structure G
     EdgeID e = G->new_edge(source, target);
     EdgeID e_bar = G->new_edge(target, source);
     
     #ifdef DM_COUNTERS
-        double elapsed;
+        elapsed = t.elapsed();
         counters::get("bgs").get_d("rt_in_G").add(elapsed);
-        t.restart();
     #endif
     
+    t.restart();
     handle_addition(source, target);
+    elapsed = t.elapsed();
     
     #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
         counters::get("bgs").get_d("rt_in").add(elapsed);
     #endif
     
     return e;
 }
 
-void baswanaguptasen_dyn_matching::remove_edge(NodeID source, NodeID target) {
-    #ifdef DM_COUNTERS
-        timer t;
-    #endif
+void baswanaguptasen_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
+    timer t;
     
     G->remove_edge(source, target);
     G->remove_edge(target, source);
     
     #ifdef DM_COUNTERS
-        double elapsed;
+        elapsed = t.elapsed();
         counters::get("bgs").get_d("rt_out_G").add(elapsed);
-        t.restart();
     #endif
     
+    t.restart();
     handle_deletion(source, target);
+    elapsed = t.elapsed();
     
     #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
         counters::get("bgs").get_d("rt_out").add(elapsed);
     #endif
 }

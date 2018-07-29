@@ -6,6 +6,7 @@
 *.graph
 
 deploy/testsets/*
+deploy/vm/*
 deploy/output/*
 deploy/snapshots/*
 deploy/sequences/*

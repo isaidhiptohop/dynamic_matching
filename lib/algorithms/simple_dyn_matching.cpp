@@ -21,7 +21,6 @@
 
 #ifdef DM_COUNTERS
     #include "counters.h"
-    #include "timer.h"
 #endif
 /*
 int RNG::nextInt (int lb, int rb) {
@@ -57,29 +56,28 @@ simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn
 //    rng.setSeed(a);
 }
 
-EdgeID simple_dyn_matching::new_edge(NodeID source, NodeID target) {
-    #ifdef DM_COUNTERS
-        timer t;
-    #endif
+EdgeID simple_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
+    timer t;
     
     EdgeID e = G->new_edge(source, target);
     EdgeID e_bar = G->new_edge(target, source);
     
     #ifdef DM_COUNTERS
-        double elapsed = t.elapsed();
+        elapsed = t.elapsed();
         counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in_G").add(elapsed);
-        t.restart();
     #endif
     
     // starting calculation of matching
+    t.restart();
     
     // check whether the vertices are free. if so, add to the matching
     if (freeVertex(source) && freeVertex(target)) {
         match (source, target);
     }
     
+    elapsed = t.elapsed();
+    
     #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
         counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in").add(elapsed);
     #endif
     
@@ -88,21 +86,20 @@ EdgeID simple_dyn_matching::new_edge(NodeID source, NodeID target) {
     return e;
 }
 
-void simple_dyn_matching::remove_edge(NodeID source, NodeID target) {
-    #ifdef DM_COUNTERS
-        timer t;
-    #endif
+void simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
+    timer t;
     
     G->remove_edge(source, target);
     G->remove_edge(target, source);
     
+    #ifdef DM_COUNTERS
+        elapsed = t.elapsed();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out_G").add(elapsed);
+    #endif
+    
     /* starting calculation of matching */
     
-    #ifdef DM_COUNTERS
-        double elapsed = t.elapsed();
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out_G").add(elapsed);
-        t.restart();
-    #endif
+    t.restart();
     
     if (isMatched(source, target)) {
         unmatch(source, target);
@@ -122,8 +119,9 @@ void simple_dyn_matching::remove_edge(NodeID source, NodeID target) {
         #endif
     }
     
+    elapsed = t.elapsed();
+    
     #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
         counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out").add(elapsed);
     #endif
     

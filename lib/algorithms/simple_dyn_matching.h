@@ -29,6 +29,8 @@
 
 #include "dyn_matching.h"
 #include "random_functions.h"
+#include "timer.h"
+
 /*
 struct RNG {
     std::mt19937 mt;
@@ -40,9 +42,9 @@ class simple_dyn_matching : public dyn_matching {
 public:
     simple_dyn_matching (dyn_graph_access* G, double eps);
     
-    virtual EdgeID new_edge(NodeID source, NodeID target);
+    virtual EdgeID new_edge(NodeID source, NodeID target, double& elapsed);
     
-    virtual void remove_edge(NodeID source, NodeID target);
+    virtual void remove_edge(NodeID source, NodeID target, double& elapsed);
     
     virtual std::vector<std::pair<NodeID, NodeID> > getM ();
     

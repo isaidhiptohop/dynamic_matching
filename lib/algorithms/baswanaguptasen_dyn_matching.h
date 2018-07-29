@@ -30,6 +30,7 @@
 
 #include "dyn_matching.h"
 #include "random_functions.h"
+#include "timer.h"
 /*
 struct RNG {
     std::mt19937 mt;
@@ -42,9 +43,9 @@ public:
     baswanaguptasen_dyn_matching (dyn_graph_access* G);
     ~baswanaguptasen_dyn_matching ();
     
-    virtual EdgeID new_edge(NodeID source, NodeID target);
+    virtual EdgeID new_edge(NodeID source, NodeID target, double& elapsed);
     
-    virtual void remove_edge(NodeID source, NodeID target);
+    virtual void remove_edge(NodeID source, NodeID target, double& elapsed);
     
     virtual std::vector<std::pair<NodeID, NodeID> > getM ();
     

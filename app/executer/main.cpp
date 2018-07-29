@@ -50,12 +50,6 @@ int main (int argc, char ** argv) {
             output_file << ALGORITHM_NAMES.at(algorithms.at(i)) << (eps.at(i)? (" " + std::to_string(eps.at(i))) : "") << ", ";
         }
         
-        output_file << std::endl;
-        output_file << "# " << algorithms.size() << "x "
-                    << "insertion deletions G M time cr-similarity";
-        
-        output_file << std::endl;
-        
         std::ofstream matching_file;
         matching_file.open(output_filename + "/matchings");
         
@@ -139,7 +133,6 @@ int main (int argc, char ** argv) {
                 int j = 0; // counter for entries in data vectors. from range 0 to result_size
                 
                 for (size_t i = 0; i < edge_sequence.size(); ++i) { // iterate through sequence
-                    timer t;
                     std::pair<NodeID, NodeID> edge = edge_sequence.at(i).second;
                     
                     // for every NodeID save if it exists or not.
@@ -148,15 +141,11 @@ int main (int argc, char ** argv) {
                     
                     /* determine whether to do an insertion or a deletion */
                     if (edge_sequence.at(i).first) {
-                        t.restart();
-                        algorithm->new_edge(edge.first, edge.second);
-                        time_elapsed += t.elapsed();
+                        algorithm->new_edge(edge.first, edge.second, time_elapsed);
                         
                         insertions++;
                     } else {
-                        t.restart();
-                        algorithm->remove_edge(edge.first, edge.second);
-                        time_elapsed += t.elapsed();
+                        algorithm->remove_edge(edge.first, edge.second, time_elapsed);
                         
                         deletions++;
                     }
@@ -188,7 +177,7 @@ int main (int argc, char ** argv) {
                         // size gets divided by two since M holds every edge twice as (u,v) and (v,u)
                         combined_data.at(l).at(j).at(2) = algorithm->getG().number_of_edges()/2;
                         combined_data.at(l).at(j).at(3) = matching.size()/2;
-                        combined_runtime.at(l).at(j) = time_elapsed/conf.multi_run;
+                        combined_runtime.at(l).at(j) = combined_runtime.at(l).at(j) + time_elapsed/conf.multi_run;
                         
                         // iterator for data vector gets incremented only when data is written to the data vector
                         // j = 0:1:result_size; // according to octave syntax
@@ -243,7 +232,19 @@ int main (int argc, char ** argv) {
         // get counters
         counters::print(counters_file);
         
-        std::cout << "nodes: " << count_nodes(nodes) << std::endl;
+        size_t node_count = count_nodes(nodes);
+        
+        std::ofstream meta_file;
+        meta_file.open(output_filename + "/n");
+        
+        meta_file << node_count;
+        
+        output_file << << "nodes: " << node_count << std::endl;
+        
+        output_file << "# " << algorithms.size() << "x "
+                    << "insertion deletions G M time cr-similarity";
+        
+        output_file << std::endl;
         
         /* 
          * matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm.
