@@ -2,6 +2,7 @@
 
 #ifdef DM_COUNTERS
     #include "counters.h"
+    #include "timer.h"
 #endif
 /*
 int RNG::nextInt (int lb, int rb) {
@@ -24,10 +25,13 @@ dyn_matching(G) {
     M.finish_construction();
     
     #ifdef DM_COUNTERS
-        counters::new_counter("matches_per_step_bgs"); // counts calls on function match() for bgs
-        counters::new_counter("insert_lvl1"); // counts insertions, where one vertex was at lvl 1
-        counters::new_counter("easy_insert_bgs"); // counts simple insertions where u,v was matched
-        counters::new_counter("too_many_edges_bgs"); // counts cases in which an invariant was violated and has to be restored
+        counters::create("bgs");
+        counters::get("bgs").create("match()");
+        
+        counters::get("bgs").create_d("rt_in");
+        counters::get("bgs").create_d("rt_out");
+        counters::get("bgs").create_d("rt_in_G");
+        counters::get("bgs").create_d("rt_out_G");
     #endif
 //    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 //    rng.setSeed(a);
@@ -38,20 +42,50 @@ baswanaguptasen_dyn_matching::~baswanaguptasen_dyn_matching() {
 }
 
 EdgeID baswanaguptasen_dyn_matching::new_edge(NodeID source, NodeID target) {
+    #ifdef DM_COUNTERS
+        timer t;
+    #endif
+    
     // first add the node to the data structure G
     EdgeID e = G->new_edge(source, target);
     EdgeID e_bar = G->new_edge(target, source);
     
+    #ifdef DM_COUNTERS
+        double elapsed;
+        counters::get("bgs").get_d("rt_in_G").add(elapsed);
+        t.restart();
+    #endif
+    
     handle_addition(source, target);
+    
+    #ifdef DM_COUNTERS
+        elapsed = t.elapsed();
+        counters::get("bgs").get_d("rt_in").add(elapsed);
+    #endif
     
     return e;
 }
 
 void baswanaguptasen_dyn_matching::remove_edge(NodeID source, NodeID target) {
+    #ifdef DM_COUNTERS
+        timer t;
+    #endif
+    
     G->remove_edge(source, target);
     G->remove_edge(target, source);
     
+    #ifdef DM_COUNTERS
+        double elapsed;
+        counters::get("bgs").get_d("rt_out_G").add(elapsed);
+        t.restart();
+    #endif
+    
     handle_deletion(source, target);
+    
+    #ifdef DM_COUNTERS
+        elapsed = t.elapsed();
+        counters::get("bgs").get_d("rt_out").add(elapsed);
+    #endif
 }
 
 std::vector<std::pair<NodeID, NodeID> > baswanaguptasen_dyn_matching::getM () {
@@ -110,7 +144,7 @@ void baswanaguptasen_dyn_matching::match (NodeID u, NodeID v) {
     M.new_edge(v, u);
     
     #ifdef DM_COUNTERS
-        counters::get("matches_per_step_bgs").inc();
+        counters::get("bgs").get("match()").inc();
     #endif
 }
 
@@ -127,13 +161,11 @@ void baswanaguptasen_dyn_matching::handle_addition (NodeID u, NodeID v) {
         O.at(u).insert({v, v});
         
         #ifdef DM_COUNTERS
-            counters::get("insert_lvl1").inc();
         #endif
     } else if (level(v) == 1) {
         O.at(v).insert({u, u});
         
         #ifdef DM_COUNTERS
-            counters::get("insert_lvl1").inc();
         #endif
     } else { // both at level 0
         handling_insertion(u, v);
@@ -154,7 +186,6 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
         match(u, v);
         
         #ifdef DM_COUNTERS
-            counters::get("easy_insert_bgs").inc();
         #endif
     }
     
@@ -194,7 +225,6 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
         delete w;
         
         #ifdef DM_COUNTERS
-            counters::get("too_many_edges_bgs").inc();
         #endif
     }
 }
@@ -268,6 +298,7 @@ void baswanaguptasen_dyn_matching::handling_deletion (NodeID u) {
         if (x != nullptr) {
             naive_settle(*x);
         }
+        delete x;
     } else {
         // otherwise, if O_u is now less than sqrt(n), it drops to level 0
         set_level(u, 0);
@@ -299,6 +330,7 @@ void baswanaguptasen_dyn_matching::handling_deletion (NodeID u) {
                     naive_settle(*mate_w);
                 }
                 
+                delete mate_w;
                 delete x;
             }
         }
@@ -325,6 +357,7 @@ NodeID * baswanaguptasen_dyn_matching::random_settle (NodeID u) {
         x = mate(y);
         unmatch(*x, y);
     } else {
+//        delete x;
         x = nullptr;
     }
     
@@ -348,9 +381,10 @@ void baswanaguptasen_dyn_matching::naive_settle (NodeID u) {
 
 void baswanaguptasen_dyn_matching::counters_next() {
     #ifdef DM_COUNTERS
-        counters::get("matches_per_step_bgs").next();
-        counters::get("insert_lvl1").next();
-        counters::get("easy_insert_bgs").next();
-        counters::get("too_many_edges_bgs").next();
+        counters::get("bgs").get("match()").next();
+        counters::get("bgs").get_d("rt_in").next();
+        counters::get("bgs").get_d("rt_out").next();
+        counters::get("bgs").get_d("rt_in_G").next();
+        counters::get("bgs").get_d("rt_out_G").next();
     #endif
 }

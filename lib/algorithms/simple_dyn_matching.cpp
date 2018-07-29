@@ -21,6 +21,7 @@
 
 #ifdef DM_COUNTERS
     #include "counters.h"
+    #include "timer.h"
 #endif
 /*
 int RNG::nextInt (int lb, int rb) {
@@ -41,8 +42,15 @@ simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn
     this->eps = eps;
     
     #ifdef DM_COUNTERS
-        counters::new_counter(std::string("matches_per_step_simple" + std::to_string(eps)));
-        counters::new_counter(std::string("solve_conflict" + std::to_string(eps)));
+        counters::create(std::string("naive" + std::to_string(eps)));
+        counters::get(std::string("naive" + std::to_string(eps))).create("match()");
+        counters::get(std::string("naive" + std::to_string(eps))).create("solve_conflict()");
+        
+        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_in");
+        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_out");
+        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_in_G");
+        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_out_G");
+        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_solve_conflict()");
     #endif
 //    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 //        auto a = std::chrono::system_clock::now();
@@ -50,8 +58,18 @@ simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn
 }
 
 EdgeID simple_dyn_matching::new_edge(NodeID source, NodeID target) {
+    #ifdef DM_COUNTERS
+        timer t;
+    #endif
+    
     EdgeID e = G->new_edge(source, target);
     EdgeID e_bar = G->new_edge(target, source);
+    
+    #ifdef DM_COUNTERS
+        double elapsed = t.elapsed();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in_G").add(elapsed);
+        t.restart();
+    #endif
     
     // starting calculation of matching
     
@@ -60,25 +78,54 @@ EdgeID simple_dyn_matching::new_edge(NodeID source, NodeID target) {
         match (source, target);
     }
     
+    #ifdef DM_COUNTERS
+        elapsed = t.elapsed();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in").add(elapsed);
+    #endif
+    
     // finished calculation of matching
     
     return e;
 }
 
 void simple_dyn_matching::remove_edge(NodeID source, NodeID target) {
+    #ifdef DM_COUNTERS
+        timer t;
+    #endif
+    
     G->remove_edge(source, target);
     G->remove_edge(target, source);
     
     /* starting calculation of matching */
+    
+    #ifdef DM_COUNTERS
+        double elapsed = t.elapsed();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out_G").add(elapsed);
+        t.restart();
+    #endif
     
     if (isMatched(source, target)) {
         unmatch(source, target);
         
         ASSERT_TRUE(!isMatched(source, target));
         
+        #ifdef DM_COUNTERS
+            timer t2;
+        #endif
+        
         solve_conflict(source, 0);
         solve_conflict(target, 0);
+        
+        #ifdef DM_COUNTERS
+            elapsed = t2.elapsed();
+            counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_solve_conflict()").add(elapsed);
+        #endif
     }
+    
+    #ifdef DM_COUNTERS
+        elapsed = t.elapsed();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out").add(elapsed);
+    #endif
     
     /* finished calculation of matching */
 }
@@ -125,7 +172,7 @@ void simple_dyn_matching::match (NodeID u, NodeID v) {
     ASSERT_TRUE(M.getNodeDegree(v) == 1);
     
     #ifdef DM_COUNTERS
-        counters::get(std::string("matches_per_step_simple" + std::to_string(eps))).inc();
+        counters::get(std::string("naive" + std::to_string(eps))).get("match()").inc();
     #endif
 }
 
@@ -192,13 +239,19 @@ void simple_dyn_matching::solve_conflict (NodeID u, int step) {
     }
     
     #ifdef DM_COUNTERS
-        counters::get(std::string("solve_conflict" + std::to_string(eps))).inc();
+        counters::get(std::string("naive" + std::to_string(eps))).get("solve_conflict()").inc();
     #endif
 }
 
 void simple_dyn_matching::counters_next() {
     #ifdef DM_COUNTERS
-        counters::get(std::string("matches_per_step_simple" + std::to_string(eps))).next();
-        counters::get(std::string("solve_conflict" + std::to_string(eps))).next();
+        counters::get(std::string("naive" + std::to_string(eps))).get("match()").next();
+        counters::get(std::string("naive" + std::to_string(eps))).get("solve_conflict()").next();
+        
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in").next();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out").next();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in_G").next();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out_G").next();
+        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_solve_conflict()").next();
     #endif
 }
