@@ -127,7 +127,7 @@ int main (int argc, char ** argv) {
                 dyn_matching * algorithm = init_algorithm(algorithms.at(l), G, eps.at(l));
                 
                 // initalize timer and counters
-                long double time_elapsed = 0;
+                double time_elapsed = 0;
                 int insertions = 0;
                 int deletions = 0;
                 int j = 0; // counter for entries in data vectors. from range 0 to result_size
@@ -135,7 +135,7 @@ int main (int argc, char ** argv) {
                 for (size_t i = 0; i < edge_sequence.size(); ++i) { // iterate through sequence
                     std::pair<NodeID, NodeID> edge = edge_sequence.at(i).second;
                     
-                    long double tmp;
+                    double tmp;
                     
                     // for every NodeID save if it exists or not.
                     nodes.at(edge.first) = true;
