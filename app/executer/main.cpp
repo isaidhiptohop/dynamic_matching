@@ -234,12 +234,12 @@ int main (int argc, char ** argv) {
         
         size_t node_count = count_nodes(nodes);
         
-        std::ofstream meta_file;
-        meta_file.open(output_filename + "/n");
+        std::ofstream n_file;
+        n_file.open(output_filename + "/n");
         
-        meta_file << node_count;
+        n_file << node_count;
         
-        output_file << << "nodes: " << node_count << std::endl;
+        output_file << "nodes: " << node_count << std::endl;
         
         output_file << "# " << algorithms.size() << "x "
                     << "insertion deletions G M time cr-similarity";
