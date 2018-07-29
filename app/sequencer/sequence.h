@@ -58,6 +58,8 @@ public:
     void print_last();
     
 private:
+    NodeID count_nodes();
+    
     size_t n;
     size_t k;
     MODE mode;
@@ -74,6 +76,8 @@ private:
     int helper;
     
     bool built;
+    
+    std::vector<bool> nodes;
     
     std::vector<std::pair<int, std::pair<NodeID, NodeID> > > buf;
     size_t it;

@@ -25,6 +25,8 @@ sequence::sequence (size_t n, size_t k, MODE mode, size_t window, long seed, std
     add_count = 0;
     del_count = 0;
     
+    nodes.resize(k);
+    
     built = false;
     
     ofile.open("sequences/" + get_name());
@@ -184,6 +186,7 @@ void sequence::create () {
         return;
     }
     
+    std::cout << "nodes: " << count_nodes() << std::endl;
     built = true;
 }
 
@@ -205,10 +208,17 @@ std::pair<int, std::pair<NodeID, NodeID> > sequence::create_edge (const random_f
             v = rng.nextInt(0, n-1);
         } while (v == u);
         
+        nodes.at(u) = true;
+        nodes.at(v) = true;
+        
         return std::pair<int, std::pair<NodeID, NodeID> >({1, {u, v}});
     } else {
         if (it < buf.size()) {
             std::pair<int, std::pair<NodeID, NodeID> > edge = buf.at(it++);
+            
+            nodes.at(edge.second.first) = true;
+            nodes.at(edge.second.second) = true;
+            
             return edge;
         } else {
             throw std::string("no more edge insertions in file: " + std::to_string(it));
@@ -376,4 +386,14 @@ std::string sequence::get_name() {
     name = name + ".sequence";
     
     return name;
+}
+
+NodeID sequence::count_nodes() {
+    NodeID node_count = 0;
+    
+    for (auto n : nodes) {
+        if (n) node_count++;
+    }
+    
+    return node_count;
 }

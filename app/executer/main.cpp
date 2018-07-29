@@ -4,6 +4,7 @@
 
 // creates new instance of the passed algorithm.
 dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double eps);
+NodeID count_nodes(std::vector<bool>& nodes);
 
 int main (int argc, char ** argv) {
     try {
@@ -51,7 +52,7 @@ int main (int argc, char ** argv) {
         
         output_file << std::endl;
         output_file << "# " << algorithms.size() << "x "
-                    << "insertion deletions G M time cr-similarity intersect-ca";
+                    << "insertion deletions G M time cr-similarity";
         
         output_file << std::endl;
         
@@ -111,7 +112,7 @@ int main (int argc, char ** argv) {
         std::vector<std::vector<std::vector<std::pair<NodeID, NodeID> > > > matchings(algorithms.size(), std::vector<std::vector<std::pair<NodeID, NodeID> > >(result_size));
         std::vector<std::vector<std::vector<std::pair<NodeID, NodeID> > > > previous_matchings;
         
-        std::vector<std::vector<int> > cross_algorithm_matching_intersect(algorithms.size(), std::vector<int>(result_size, 0));
+//        std::vector<std::vector<int> > cross_algorithm_matching_intersect(algorithms.size(), std::vector<int>(result_size, 0));
         
         std::vector<std::vector<double> > cross_run_similarities(algorithms.size(), std::vector<double>(result_size, 0));
         std::vector<std::vector<int> > cross_run_sim_counters(algorithms.size(), std::vector<int>(result_size, 0));
@@ -119,16 +120,13 @@ int main (int argc, char ** argv) {
         double similarity = 0;
         int sim_counter = 0;
         
+        std::vector<bool> nodes = std::vector<bool>(n, false);
         
         /* start calculations */
         for (int k = 0; k < conf.multi_run; ++k) { // run the whole thing several times
 //            std::cout << "run " << k+1 << "/" << conf.multi_run << std::endl;
             // hold all matchings of one run in vector.
-            /*
-            for (auto c : counters::get_all() ) {
-                c.second.restart();
-            }
-            */
+            
             for (size_t l = 0; l < algorithms.size(); ++l) { // run different algorithms
 //                std::cout << "running algorithm " << ALGORITHM_NAMES.at(algorithms.at(l)) << std::endl;
                 dyn_graph_access * G = create_graph(n);
@@ -143,6 +141,10 @@ int main (int argc, char ** argv) {
                 for (size_t i = 0; i < edge_sequence.size(); ++i) { // iterate through sequence
                     timer t;
                     std::pair<NodeID, NodeID> edge = edge_sequence.at(i).second;
+                    
+                    // for every NodeID save if it exists or not.
+                    nodes.at(edge.first) = true;
+                    nodes.at(edge.second) = true;
                     
                     /* determine whether to do an insertion or a deletion */
                     if (edge_sequence.at(i).first) {
@@ -233,23 +235,27 @@ int main (int argc, char ** argv) {
             previous_matchings = matchings;
             matchings.resize(algorithms.size());
         } // end of multiple runs with the same algorithm
-        /*
-        counters::divide_by(conf.multi_run);
-        counters::print(counters_file);
-        */
-        // = = = = // COLLECT INFORMATION // = = = = //
         
-            /* 
-             * matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm.
-             * see above for details.
-             * 
-             * therefore the size of every subvector in matchings should have the same size, namely the size of the sequence.
-             * however the size of the calculated matchings inside the subvector can differ.
-             * 
-             * in the following if-block we iterate through the sequence steps and compare the matching resutls of different algorithms
-             * for every time-step.
-             */
-            
+        
+        //================// COLLECT INFORMATION //================//
+        
+        
+        // get counters
+        counters::print(counters_file);
+        
+        std::cout << "nodes: " << count_nodes(nodes) << std::endl;
+        
+        /* 
+         * matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm.
+         * see above for details, ~line 90.
+         * 
+         * therefore the size of every subvector in matchings should have the same size, namely the result size.
+         * however the size of the calculated matchings inside the subvector can differ.
+         * 
+         * in the following if-block we iterate through the sequence steps and compare the matching resutls of different algorithms
+         * for every time-step.
+         */
+        /*
         for (size_t m = 0; m < algorithms.size(); ++m) {
             // TODO: what does upper_limit mean? why do i need it? i suspect it should be the other way around
             
@@ -261,11 +267,6 @@ int main (int argc, char ** argv) {
                     
                     // save intersect size, divide it by two since every edge is hold twice in it
                     cross_algorithm_matching_intersect.at(m).at(i) = intersect_size/2;
-                    /*
-                    std::cout << "comparing " << ALGORITHM_NAMES.at(algorithms.at(m)) 
-                              << " with "     << ALGORITHM_NAMES.at(algorithms.at(m+1)) 
-                              << ": " << intersect_size/2 << std::endl;
-                    */
                     similarity = similarity + (union_size ? ((intersect_size * 1.0) / union_size) : 0); // if union is zero, similarity is zero
                     sim_counter++;
                 }
@@ -277,16 +278,13 @@ int main (int argc, char ** argv) {
                     
                     // save intersect size, divide it by two since every edge is hold twice in it
                     cross_algorithm_matching_intersect.at(m).at(i) = intersect_size/2;
-                    /*
-                    std::cout << "comparing " << ALGORITHM_NAMES.at(algorithms.at(m)) 
-                              << " with "     << ALGORITHM_NAMES.at(algorithms.at(0)) 
-                              << ": " << intersect_size/2 << std::endl;
-                    */
                     similarity = similarity + (union_size ? ((intersect_size * 1.0) / union_size) : 0);
                     sim_counter++;
                 }
             }
+            
         }
+        */
         
         std::vector<double> total_cross_run_similarities(algorithms.size(), 0);
         std::vector<int> total_cross_run_sim_counters(algorithms.size(), 0);
@@ -307,6 +305,8 @@ int main (int argc, char ** argv) {
         
         ASSERT_TRUE(combined_data.size() == combined_runtime.size());
         
+        
+        // write data to file
         for (size_t i = 0; i < result_size; ++i) { // iterate through sequence steps
             for (size_t j = 0; j < algorithms.size(); ++j) { // iterate through different runs with different algorithms
                 output_file << combined_data.at(j).at(i).at(0) << " " 
@@ -316,8 +316,8 @@ int main (int argc, char ** argv) {
                             << combined_runtime.at(j).at(i) << " "
                             
                             // check that we don't divdide by zero
-                            << (cross_run_sim_counters.at(j).at(i) ? cross_run_similarities.at(j).at(i) / cross_run_sim_counters.at(j).at(i) : 0) << " "
-                            << cross_algorithm_matching_intersect.at(j).at(i) << " ";
+                            << (cross_run_sim_counters.at(j).at(i) ? cross_run_similarities.at(j).at(i) / cross_run_sim_counters.at(j).at(i) : 0) << " ";
+//                            << cross_algorithm_matching_intersect.at(j).at(i) << " ";
                             
                 print_matching(matching_file, matchings.at(j).at(i));
             }
@@ -345,5 +345,15 @@ dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double
     } else {
         return nullptr;
     }
+}
+
+NodeID count_nodes(std::vector<bool>& nodes) {
+    NodeID count = 0;
+    
+    for (auto n : nodes) {
+        if (n) count++;
+    }
+    
+    return count;
 }
 

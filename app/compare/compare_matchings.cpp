@@ -43,6 +43,9 @@ int main (int argc, char ** argv) {
     // buffer matching
     std::vector<std::pair<NodeID, NodeID> > matching;
     
+    // (x,y[,z]) : xth algorithm, yth matching, zth edge in matching
+    std::vector<std::vector<std::vector<std::pair<NodeID, NodeID> > > > all_matchings;
+    
     
     // get all gpa_matchings into vector
     std::vector<std::vector<std::pair<NodeID, NodeID> > > gpa_matchings;
@@ -58,7 +61,11 @@ int main (int argc, char ** argv) {
         matchings.algorithm = i;
         size_t j = 0;
         
+        all_matchings.push_back(std::vector<std::vector<std::pair<NodeID, NodeID> > >());
+        
         while (matchings.next_matching(matching) && j < gpa_matchings.size()) {
+            all_matchings.at(i).push_back(matching);
+            
             int union_size = 1;
             int intersect_size = quality_metrics::edgeset_intersect(gpa_matchings.at(j), matching, union_size).size();
             
@@ -76,6 +83,20 @@ int main (int argc, char ** argv) {
         }
         
         matchings.reset();
+    }
+    
+    for (size_t i = 0; i < all_matchings.size(); ++i) {
+        for (size_t j = i+1; j < all_matchings.size(); ++j) {
+            ASSERT_TRUE(all_matchings.at(i).size() == all_matchings.at(j).size());
+            for (size_t k = 0; k < all_matchings.at(i).size(); ++k) {
+                int union_size = 1;
+                int intersect_size = quality_metrics::edgeset_intersect(all_matchings.at(i).at(k), all_matchings.at(j).at(k), union_size).size();
+                
+                results.at(k).push_back(all_matchings.at(i).at(k).size()/2);
+                results.at(k).push_back(all_matchings.at(j).at(k).size()/2);
+                results.at(k).push_back(intersect_size/2);
+            }
+        }
     }
     
     std::ofstream output(std::string(prefix + "intersects"));
