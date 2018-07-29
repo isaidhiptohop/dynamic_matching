@@ -48,5 +48,5 @@ copy-executables:
 	cp app/executer/executer deploy/
 	cp app/sequencer/sequencer deploy/
 	cp gpa/app/gpa_matching deploy/
-
+	mkdir -p deploy/output
 
