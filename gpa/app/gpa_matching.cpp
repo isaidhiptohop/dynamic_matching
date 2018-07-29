@@ -79,9 +79,6 @@ int main(int argn, char **argv) {
         std::ofstream matchings_file(std::string(freader.directory + "matchings_gpa").c_str());
         std::ofstream data_file(std::string(freader.directory + "data_gpa").c_str());
         
-        std::cout << std::string(freader.directory + "matchings_gpa") << " " << matchings_file.is_open() << std::endl;
-        std::cout << std::string(freader.directory + "data_gpa") << " " << data_file.is_open() << std::endl;
-        
         std::vector<double> time_elapsed;
         std::vector<EdgeID> graph_size;
         
@@ -90,7 +87,6 @@ int main(int argn, char **argv) {
         
         for (size_t i = 0; i < multi_run; ++i) {
             freader.iterator = freader.step;
-            std::cout << "run " << i << "/" << multi_run << std::endl;
             
             int j = 0;
             while (freader.next_snapshot(realGraph)) {
@@ -185,7 +181,6 @@ bool file_reader::next_snapshot(basicGraph& realGraph) {
     {
         ifstream f(file_name.c_str());
         if(!f.good()) {
-            std::cout << "end of file." << std::endl;
             return false;
         }
     }
