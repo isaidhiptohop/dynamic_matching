@@ -15,6 +15,12 @@ compile_debug:
 	$(CC) -g $(CFLAGS) -o baswanaguptasen_dyn_matching.o $(INCLUDE) baswanaguptasen_dyn_matching.cpp
 	
 compile_counters:
+	$(CC) -DDM_COUNTERS $(CFLAGS) -o dyn_matching.o $(INCLUDE) dyn_matching.cpp
+	$(CC) -DDM_COUNTERS $(CFLAGS) -o simple_dyn_matching.o $(INCLUDE) simple_dyn_matching.cpp
+	$(CC) -DDM_COUNTERS $(CFLAGS) -o neimansolomon_dyn_matching.o $(INCLUDE) neimansolomon_dyn_matching.cpp
+	$(CC) -DDM_COUNTERS $(CFLAGS) -o baswanaguptasen_dyn_matching.o $(INCLUDE) baswanaguptasen_dyn_matching.cpp
+	
+compile_counters_debug:
 	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o dyn_matching.o $(INCLUDE) dyn_matching.cpp
 	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o simple_dyn_matching.o $(INCLUDE) simple_dyn_matching.cpp
 	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o neimansolomon_dyn_matching.o $(INCLUDE) neimansolomon_dyn_matching.cpp
@@ -32,4 +38,7 @@ library_debug:
 	
 library_counters:
 	make compile_counters
-    
+
+library_counters_debug:
+	make compile_counters_debug
+

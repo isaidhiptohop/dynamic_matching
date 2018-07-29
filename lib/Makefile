@@ -48,7 +48,7 @@ library_counters:
 	
 library_counters_debug:
 	rm -f *.a
-	cd algorithms && make library_counters
+	cd algorithms && make library_counters_debug
 	cd data_structure && make library_debug
 	cd matching && make library_debug
 	cd io && make library_debug
