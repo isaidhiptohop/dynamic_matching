@@ -1,3 +1,3 @@
-./executer -f sequences/flickr-growth_4204737162_100000_3000000_meyerhenke_1000000_10th.sequence --at-once 1000 -mr 3
-./gpa_matching output/flickr-growth_4204737162_100000_3000000_meyerhenke_1000000_10th_1000/ --step=1000 --multi-runs=3
-./compare output/flickr-growth_4204737162_100000_3000000_meyerhenke_1000000_10th_1000/
+./executer -f sequences/flickr-growth_4204737162_100000_300000_meyerhenke_100000.sequence --at-once 1000 -mr 3
+./gpa_matching output/flickr-growth_4204737162_100000_300000_meyerhenke_100000_1000/ --step=1000 --multi-runs=3
+./compare output/flickr-growth_4204737162_100000_300000_meyerhenke_100000_1000/
