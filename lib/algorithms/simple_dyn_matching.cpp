@@ -56,11 +56,13 @@ simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn
 //    rng.setSeed(a);
 }
 
-EdgeID simple_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
+bool simple_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
     timer t;
     
-    EdgeID e = G->new_edge(source, target);
-    EdgeID e_bar = G->new_edge(target, source);
+    bool foo = G->new_edge(source, target);
+    bool bar = G->new_edge(target, source);
+    
+    ASSERT_TRUE(foo == bar);
     
     #ifdef DM_COUNTERS
         elapsed = t.elapsed();
@@ -83,14 +85,16 @@ EdgeID simple_dyn_matching::new_edge(NodeID source, NodeID target, double& elaps
     
     // finished calculation of matching
     
-    return e;
+    return foo;
 }
 
-void simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
+bool simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
     timer t;
     
-    G->remove_edge(source, target);
-    G->remove_edge(target, source);
+    bool foo = G->remove_edge(source, target);
+    bool bar = G->remove_edge(target, source);
+    
+    ASSERT_TRUE(foo == bar);
     
     #ifdef DM_COUNTERS
         elapsed = t.elapsed();
@@ -126,6 +130,8 @@ void simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elap
     #endif
     
     /* finished calculation of matching */
+    
+    return foo;
 }
 
 std::vector<std::pair<NodeID, NodeID> > simple_dyn_matching::getM () {

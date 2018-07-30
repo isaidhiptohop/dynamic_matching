@@ -171,12 +171,14 @@ neimansolomon_dyn_matching::neimansolomon_dyn_matching (dyn_graph_access* G) : d
     #endif
 }
 
-EdgeID neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
+bool neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
     // first add the node to the data structure G;
     timer t;
     
-    EdgeID e = G->new_edge(source, target);
-    EdgeID e_bar = G->new_edge(target, source);
+    bool foo = G->new_edge(source, target);
+    bool bar = G->new_edge(target, source);
+    
+    ASSERT_TRUE(foo == bar);
     
     #ifdef DM_COUNTERS
         elapsed = t.elapsed();
@@ -191,7 +193,7 @@ EdgeID neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target, double
         counters::get("ns").get_d("rt_in").add(elapsed);
     #endif
     
-    return e;
+    return foo;
 }
 
 void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
@@ -258,11 +260,13 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
     }
 }
     
-void neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
+bool neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
     timer t;
     
-    G->remove_edge(source, target);
-    G->remove_edge(target, source);
+    bool foo = G->remove_edge(source, target);
+    bool bar = G->remove_edge(target, source);
+    
+    ASSERT_TRUE(foo == bar);
     
     #ifdef DM_COUNTERS
         elapsed = t.elapsed();
@@ -276,6 +280,8 @@ void neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target, doubl
     #ifdef DM_COUNTERS
         counters::get("ns").get_d("rt_out").add(elapsed);
     #endif
+    
+    return foo;
 }
 
 std::vector<std::pair<NodeID, NodeID> > neimansolomon_dyn_matching::getM () {

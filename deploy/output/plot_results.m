@@ -1,6 +1,6 @@
 #prefix = "facebook-wosn-links_4204737162_100000_300000_meyerhenke_100000_1000_3/";
 #prefix = "link-dynamic-frwiki_4204737162_10000_300000_native_1000/";
-#prefix = "flickr-growth_4204737162_100000_300000_sliding-window_100000_1000/";
+#prefix = "link-dynamic-frwiki_1234_100000_1000000_native_1000/";
 
 # load data files
 data = load(strcat(prefix, "data"));
@@ -37,10 +37,10 @@ cols = 6;
 for i = 0:(size(data)(2)/cols - 1)
   n = [1:size(data)(1)];
 
-#  figure(2);
-#  hold on;
-#  plot(n, data(:,7 + i*7), "color", color(i+1,:), "lineWidth", linewidth);
-#  hold off;
+  figure(2);
+  hold on;
+  plot(n, data(:,2 + i*cols), "color", color(i+2,:), "lineWidth", linewidth);
+  hold off;
   
   # plot edge cardinality of graph
   figure(3);
@@ -59,7 +59,7 @@ for i = 0:(size(data)(2)/cols - 1)
   # runtime
   figure(5);
   hold on;
-  semilogy(n, data(:,5 + i*cols), "color", color(i+2,:), "lineWidth", linewidth);
+  plot(n, data(:,5 + i*cols), "color", color(i+2,:), "lineWidth", linewidth);
   runtimes = [runtimes, data(:,5 + i*cols)];
   hold off;
   
@@ -74,7 +74,7 @@ for i = 0:(size(data)(2)/cols - 1)
   # speed up in comparison to gpa
   figure(7);
   hold on;
-  semilogy(n_gpa, gpad(n_gpa,3)./data(n_gpa,5 + i*cols), "color", color(i+2,:), "lineWidth", linewidth);
+  plot(n_gpa, gpad(n_gpa,3)./data(n_gpa,5 + i*cols), "color", color(i+2,:), "lineWidth", linewidth);
   hold off;
 endfor
 
@@ -93,7 +93,7 @@ hold off;
 
 figure(5);
 hold on;
-semilogy(n_gpa, gpad(:,3), "color", color(i,:), "lineWidth", linewidth);
+plot(n_gpa, gpad(:,3), "color", color(i,:), "lineWidth", linewidth);
 hold off;
 
 options = strcat(", n=",num2str(graph_n));
@@ -125,7 +125,7 @@ title(strcat("runtime", options));
 legend("baswana-gupta-sen", "naive eps=0.5", "naive eps=0.1", "naive eps=0.01", "neiman-solomon", "global path", "location", "southoutside");
 ylabel("runtime in seconds");
 xlabel(strcat("sequence step x", num2str(at_once)));
-#axis([0 size(data)(1) 0 max(max(runtimes))]);
+axis([0 size(data)(1) 0 quantile(quantile(runtimes, 0.95), 0.95)*2])#axis([0 size(data)(1) 0 max(max(runtimes))]);
 
 figure(6);
 title(strcat("cross run jaccard similarity of matchings", options));

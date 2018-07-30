@@ -85,7 +85,7 @@ void dyn_graph_access::convert_to_graph_access(graph_access& H) {
     ASSERT_TRUE(number_of_edges() == H.number_of_edges());
 }
 
-EdgeID dyn_graph_access::new_edge(NodeID source, NodeID target) {
+bool dyn_graph_access::new_edge(NodeID source, NodeID target) {
     ASSERT_TRUE(&(m_edges_maps[source]) != 0);
     ASSERT_TRUE(target < node_count);
 
@@ -107,13 +107,14 @@ EdgeID dyn_graph_access::new_edge(NodeID source, NodeID target) {
             max_degree_node = source;
         }
         
-        return edge_count++;
+        edge_count++;
+        return true;
     } else {
-        return -1;
+        return false;
     }
 }
 
-void dyn_graph_access::remove_edge(NodeID source, NodeID target) {
+bool dyn_graph_access::remove_edge(NodeID source, NodeID target) {
     // look up edge before removing
     if (m_edges_maps[source].find(target) != m_edges_maps[source].end()) {
         size_t i = m_edges_maps[source][target];
@@ -140,6 +141,9 @@ void dyn_graph_access::remove_edge(NodeID source, NodeID target) {
         }
         
         edge_count--;
+        return true;
+    } else {
+        return false;
     }
 }
 

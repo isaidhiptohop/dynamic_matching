@@ -56,8 +56,8 @@ public:
     void convert_from_graph_access(graph_access& H);
     void convert_to_graph_access(graph_access& H);
     
-    EdgeID new_edge(NodeID source, NodeID target);
-    void remove_edge(NodeID source, NodeID target);
+    bool new_edge(NodeID source, NodeID target);
+    bool remove_edge(NodeID source, NodeID target);
     
     bool isEdge(NodeID source, NodeID target);
     

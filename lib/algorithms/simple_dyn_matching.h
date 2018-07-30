@@ -42,9 +42,9 @@ class simple_dyn_matching : public dyn_matching {
 public:
     simple_dyn_matching (dyn_graph_access* G, double eps);
     
-    virtual EdgeID new_edge(NodeID source, NodeID target, double& elapsed);
+    virtual bool new_edge(NodeID source, NodeID target, double& elapsed);
     
-    virtual void remove_edge(NodeID source, NodeID target, double& elapsed);
+    virtual bool remove_edge(NodeID source, NodeID target, double& elapsed);
     
     virtual std::vector<std::pair<NodeID, NodeID> > getM ();
     

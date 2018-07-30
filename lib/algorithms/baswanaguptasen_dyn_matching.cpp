@@ -25,12 +25,10 @@ dyn_matching(G) {
     
     #ifdef DM_COUNTERS
         counters::create("bgs");
-        counters::get("bgs").create("match()");
-        
-        counters::get("bgs").create_d("rt_in");
-        counters::get("bgs").create_d("rt_out");
-        counters::get("bgs").create_d("rt_in_G");
-        counters::get("bgs").create_d("rt_out_G");
+        counters::get("bgs").create("in_det");
+        counters::get("bgs").create("in_rand");
+        counters::get("bgs").create("out_det");
+        counters::get("bgs").create("out_rand");
     #endif
 //    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 //    rng.setSeed(a);
@@ -40,47 +38,35 @@ baswanaguptasen_dyn_matching::~baswanaguptasen_dyn_matching() {
 //    delete G;
 }
 
-EdgeID baswanaguptasen_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
+bool baswanaguptasen_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
     timer t;
     
     // first add the node to the data structure G
-    EdgeID e = G->new_edge(source, target);
-    EdgeID e_bar = G->new_edge(target, source);
+    bool foo = G->new_edge(source, target);
+    bool bar = G->new_edge(target, source);
     
-    #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
-        counters::get("bgs").get_d("rt_in_G").add(elapsed);
-    #endif
+    ASSERT_TRUE(foo == bar);
     
     t.restart();
     handle_addition(source, target);
     elapsed = t.elapsed();
     
-    #ifdef DM_COUNTERS
-        counters::get("bgs").get_d("rt_in").add(elapsed);
-    #endif
-    
-    return e;
+    return foo;
 }
 
-void baswanaguptasen_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
+bool baswanaguptasen_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
     timer t;
     
-    G->remove_edge(source, target);
-    G->remove_edge(target, source);
+    bool foo = G->remove_edge(source, target);
+    bool bar = G->remove_edge(target, source);
     
-    #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
-        counters::get("bgs").get_d("rt_out_G").add(elapsed);
-    #endif
+    ASSERT_TRUE(foo == bar);
     
     t.restart();
     handle_deletion(source, target);
     elapsed = t.elapsed();
     
-    #ifdef DM_COUNTERS
-        counters::get("bgs").get_d("rt_out").add(elapsed);
-    #endif
+    return foo;
 }
 
 std::vector<std::pair<NodeID, NodeID> > baswanaguptasen_dyn_matching::getM () {
@@ -120,9 +106,9 @@ NodeID * baswanaguptasen_dyn_matching::mate (NodeID u) {
     if (is_free(u)) {
         return nullptr;
     } else {
-        if (M.getEdgesFromNode(u).size() != 1) {
-            std::cout << "M.getEdgesFromNode(" << u << ").size(): " << M.getEdgesFromNode(u).size() << std::endl;
-        }
+        //if (M.getEdgesFromNode(u).size() != 1) { // only for debug purpose. if this if holds, then the following assertion fails.
+        //    std::cout << "M.getEdgesFromNode(" << u << ").size(): " << M.getEdgesFromNode(u).size() << std::endl;
+        //}
         ASSERT_TRUE(M.getEdgesFromNode(u).size() == 1);
         NodeID * mate_u = new NodeID;
         * mate_u = M.getEdgeTarget(u, M.get_first_edge(u));
@@ -137,10 +123,6 @@ void baswanaguptasen_dyn_matching::match (NodeID u, NodeID v) {
     ASSERT_TRUE(M.getEdgesFromNode(v).size() == 0);
     M.new_edge(u, v);
     M.new_edge(v, u);
-    
-    #ifdef DM_COUNTERS
-        counters::get("bgs").get("match()").inc();
-    #endif
 }
 
 void baswanaguptasen_dyn_matching::unmatch (NodeID u, NodeID v) {
@@ -154,14 +136,8 @@ void baswanaguptasen_dyn_matching::handle_addition (NodeID u, NodeID v) {
     if (level(u) == 1) {
 //        ASSERT_TRUE(level(v) == 0);
         O.at(u).insert({v, v});
-        
-        #ifdef DM_COUNTERS
-        #endif
     } else if (level(v) == 1) {
         O.at(v).insert({u, u});
-        
-        #ifdef DM_COUNTERS
-        #endif
     } else { // both at level 0
         handling_insertion(u, v);
     }
@@ -179,9 +155,6 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
     // if both nodes are free, simply match them
     if (is_free(u) && is_free(v)) {
         match(u, v);
-        
-        #ifdef DM_COUNTERS
-        #endif
     }
     
     // swap the nodes, so that u owns more edges than v
@@ -192,6 +165,9 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
     }
     
     if (O.at(u).size() >= std::sqrt(G->number_of_nodes())) {
+        #ifdef DM_COUNTERS
+            counters::get("bgs").get("in_rand").inc();
+        #endif
         // (u,w) becomes unmatched, if w is the mate of u.
         NodeID * w = mate(u);
         
@@ -218,10 +194,12 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
         
         delete x;
         delete w;
-        
-        #ifdef DM_COUNTERS
-        #endif
-    }
+    } 
+    #ifdef DM_COUNTERS
+        else {
+            counters::get("bgs").get("in_det").inc();
+        }
+    #endif
 }
 
 void baswanaguptasen_dyn_matching::handle_deletion (NodeID u, NodeID v) {
@@ -237,6 +215,9 @@ void baswanaguptasen_dyn_matching::handle_deletion (NodeID u, NodeID v) {
     if (!M.isEdge(u,v)) {
         ASSERT_TRUE(!M.isEdge(v,u));
 //        std::cout << "the edge (" << u << "," << v << ") was not in M" << std::endl;
+        #ifdef DM_COUNTERS
+            counters::get("bgs").get("out_det").inc();
+        #endif
         return;
     }
     
@@ -266,7 +247,15 @@ void baswanaguptasen_dyn_matching::handle_deletion (NodeID u, NodeID v) {
     if (level(u,v) == 1) {
         handling_deletion(u);
         handling_deletion(v);
+        #ifdef DM_COUNTERS
+            counters::get("bgs").get("out_rand").inc();
+        #endif
     }
+    #ifdef DM_COUNTERS
+        else {
+            counters::get("bgs").get("out_det").inc();
+        }
+    #endif
 }
 
 void baswanaguptasen_dyn_matching::handling_deletion (NodeID u) {
@@ -376,10 +365,9 @@ void baswanaguptasen_dyn_matching::naive_settle (NodeID u) {
 
 void baswanaguptasen_dyn_matching::counters_next() {
     #ifdef DM_COUNTERS
-        counters::get("bgs").get("match()").next();
-        counters::get("bgs").get_d("rt_in").next();
-        counters::get("bgs").get_d("rt_out").next();
-        counters::get("bgs").get_d("rt_in_G").next();
-        counters::get("bgs").get_d("rt_out_G").next();
+        counters::get("bgs").get("in_det").next();
+        counters::get("bgs").get("in_rand").next();
+        counters::get("bgs").get("out_det").next();
+        counters::get("bgs").get("out_rand").next();
     #endif
 }

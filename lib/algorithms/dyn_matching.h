@@ -34,9 +34,9 @@ public:
     
     virtual ~dyn_matching ();
     
-    virtual EdgeID new_edge(NodeID source, NodeID target, double& elapsed) = 0;
+    virtual bool new_edge(NodeID source, NodeID target, double& elapsed) = 0;
     
-    virtual void remove_edge(NodeID source, NodeID target, double& elapsed) = 0;
+    virtual bool remove_edge(NodeID source, NodeID target, double& elapsed) = 0;
     
     dyn_graph_access getG ();
     
