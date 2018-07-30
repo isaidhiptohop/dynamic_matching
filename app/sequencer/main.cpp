@@ -15,6 +15,7 @@ struct seq_config {
     size_t k;
     MODE mode;
     size_t window;
+    size_t poolsize;
     long seed;
     std::string ifile;
     
@@ -23,6 +24,7 @@ struct seq_config {
         k = 0;
         mode = MODE::only_addition;
         window = 0;
+        poolsize = 0;
         seed = -1;
         ifile = "";
     }
@@ -54,6 +56,8 @@ void get_arguments(int argc, char ** argv, seq_config& conf) {
             check_option_arg(option, i, argc, argv);
             std::string mode_str = argv[i+1];
             
+            std::cout << "read mode: " << mode_str << std::endl;
+            
             if (mode_str == MODE_NAMES[0]) {
                 conf.mode = MODE::only_addition;
             } else if (mode_str == MODE_NAMES[1]) {
@@ -63,6 +67,8 @@ void get_arguments(int argc, char ** argv, seq_config& conf) {
             } else if (mode_str == MODE_NAMES[3]) {
                 conf.mode = MODE::meyerhenke;
             } else if (mode_str == MODE_NAMES[4]) {
+                conf.mode = MODE::pooled_meyerhenke;
+            } else if (mode_str == MODE_NAMES[5]) {
                 conf.mode = MODE::native;
             }
             
@@ -70,6 +76,10 @@ void get_arguments(int argc, char ** argv, seq_config& conf) {
         } else if (option == "-w") {
             check_option_arg(option, i, argc, argv);
             conf.window = atoi(argv[i+1]);
+            i++;
+        } else if (option == "-p") {
+            check_option_arg(option, i, argc, argv);
+            conf.poolsize = atoi(argv[i+1]);
             i++;
         } else if (option == "-s") {
             check_option_arg(option, i, argc, argv);
@@ -90,7 +100,7 @@ int main (int argc, char ** argv) {
         seq_config conf;
         get_arguments(argc, argv, conf);
         
-        sequence seq (conf.n, conf.k, conf.mode, conf.window, conf.seed, conf.ifile);
+        sequence seq (conf.n, conf.k, conf.mode, conf.window, conf.poolsize, conf.seed, conf.ifile);
         
         seq.create();
         seq.finish();

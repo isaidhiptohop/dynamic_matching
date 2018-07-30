@@ -32,13 +32,13 @@
 #include <chrono>
 
 
-enum MODE {only_addition, random_step, sliding_window, meyerhenke, native};
+enum MODE {only_addition, random_step, sliding_window, meyerhenke, pooled_meyerhenke, native};
 extern std::vector<std::string> MODE_NAMES;
 
 class sequence {
 public:
     sequence (size_t n, size_t k, MODE mode, size_t window);
-    sequence (size_t n, size_t k, MODE mode, size_t window, long seed, std::string ifile = "");
+    sequence (size_t n, size_t k, MODE mode, size_t window, size_t poolsize, long seed, std::string ifile = "");
     sequence (size_t n, size_t k, MODE mode, size_t window, std::string ifile);
     
     std::vector<std::string> split (const std::string& input, const char& mark);
@@ -52,6 +52,7 @@ public:
     void create_random_seq();
     void create_sliding_window_seq();
     void create_meyerhenke_seq();
+    void create_pooled_meyerhenke_seq();
     void create_native_seq();
     
     std::string get_name();
@@ -65,6 +66,7 @@ private:
     MODE mode;
     
     size_t window;
+    size_t poolsize;
     long seed;
     
     std::string ifile;

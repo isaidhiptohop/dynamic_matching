@@ -5,10 +5,11 @@
 // creates new instance of the passed algorithm.
 dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double eps);
 NodeID count_nodes(std::vector<bool>& nodes);
+NodeID count_nodes(std::vector<int>& nodes, int min_degree = 0);
 
 int main (int argc, char ** argv) {
     try {
-        /* get command line arguments and save them to ex_config struct */
+        // get command line arguments and save them to ex_config struct 
         ex_config conf;
         
         try {
@@ -19,7 +20,7 @@ int main (int argc, char ** argv) {
         }
         
         
-        /* initialize edge sequence */
+        // initialize edge sequence 
         std::vector<std::pair<int, std::pair<NodeID, NodeID> > > edge_sequence;
         size_t n = read_sequence(conf.file, edge_sequence);
         
@@ -28,7 +29,7 @@ int main (int argc, char ** argv) {
         }
         
         
-        /* initialize list of algorithms */
+        // initialize list of algorithms 
         std::vector<ALGORITHM> algorithms({ALGORITHM::bgs, ALGORITHM::naive, ALGORITHM::naive, ALGORITHM::naive, ALGORITHM::ns});
         std::vector<double>    eps       ({0,              0.5,              0.1,              0.01,             0});
         
@@ -36,7 +37,7 @@ int main (int argc, char ** argv) {
         random_functions::setSeed(conf.seed);
         
         
-        /* initialize output directory and files */
+        // initialize output directory and files 
         std::string output_filename = get_output_filename(conf);
         
         mkdir(std::string(output_filename).c_str(), 0775);
@@ -59,7 +60,7 @@ int main (int argc, char ** argv) {
         mkdir(std::string(output_filename + "/snapshots").c_str(), 0775);
         
         
-        /* calculate size (lines) of the resulting data to reserve space. */
+        // calculate size (lines) of the resulting data to reserve space.
         size_t result_size;
         if (edge_sequence.size() % conf.at_once == 0) {
             result_size = edge_sequence.size()/conf.at_once;
@@ -69,44 +70,40 @@ int main (int argc, char ** argv) {
         
         std::cout << "result size: " << result_size << std::endl;
         
-        /* intialize result vectors */
+        // intialize result vectors
         
-        /*  combined_data is 3D: algorithms X evaluated sequence steps X measurements
-         *  algorithms is determined by algorithms.size(),
-         *  the evaluated sequence steps corresponds to result_size,
-         *  the measurements are 4: insertions, deletions, cardinality of G, cardinality of M
-         *  
-         *  combined_runtime is 2D: algorithms X evaluated sequence steps
-         *  the dimensions are the same as for combined_data, only there is only one measurement, the elapsed time
-         */
+        // combined_data is 3D: algorithms X evaluated sequence steps X measurements
+        // algorithms is determined by algorithms.size(),
+        // the evaluated sequence steps corresponds to result_size,
+        // the measurements are 4: insertions, deletions, cardinality of G, cardinality of M
         std::vector<std::vector<std::vector<int> > > combined_data(algorithms.size(), std::vector<std::vector<int> >(result_size, std::vector<int>(4, 0)));
+        
+        // combined_runtime is 2D: algorithms X evaluated sequence steps
+        // the dimensions are the same as for combined_data, only there is only one measurement, the elapsed time
         std::vector<std::vector<double> > combined_runtime(algorithms.size(), std::vector<double>(result_size, 0));
         
-        /*  matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm:
-         * 
-         *  matchings = [
-         *                  [                           // algorithm
-         *                      [(u,v), (w,x), ...],    // matching of sequence step which edges as entries
-         *                      [(a,b), (...), ...],
-         *                      ...
-         *                  ],
-         *                  [                           // next algorithm
-         *                      [...],                  // again matching for every sequence step.
-         *                      ...
-         *                  ],
-         *                  ...
-         *              ]
-         *  
-         *  matchings is therefore of dimension algorithms X evaluated sequence steps X matching size (X 2, since the elements then again are pairs)
-         * 
-         *  previous matchings holds the matchings of the previous run, in order to compare results of different runs
-         *  for deterministic algorithms (neiman-solomon) there should be no changes in the results (similarity = 1), 
-         *  for randomized algorithms it is highly unlikely that the results do not differ (similarity < 1).
-         */
+        // matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm:
+        //
+        // matchings = [
+        //                 [                           // algorithm
+        //                     [(u,v), (w,x), ...],    // matching of sequence step which edges as entries
+        //                     [(a,b), (...), ...],
+        //                     ...
+        //                 ],
+        //                 [                           // next algorithm
+        //                     [...],                  // again matching for every sequence step.
+        //                     ...
+        //                 ],
+        //                 ...
+        //             ]
+        // 
+        // matchings is therefore of dimension: algorithms X evaluated sequence steps X matching size (X 2, since the elements then again are pairs)
         std::vector<std::vector<std::vector<std::pair<NodeID, NodeID> > > > matchings(algorithms.size(), std::vector<std::vector<std::pair<NodeID, NodeID> > >(result_size));
-        std::vector<std::vector<std::vector<std::pair<NodeID, NodeID> > > > previous_matchings;
         
-//        std::vector<std::vector<int> > cross_algorithm_matching_intersect(algorithms.size(), std::vector<int>(result_size, 0));
+        // previous matchings holds the matchings of the previous run, in order to compare results of different runs
+        // for deterministic algorithms (neiman-solomon) there should be no changes in the results (similarity = 1), 
+        // for randomized algorithms it is highly unlikely that the results do not differ (similarity < 1).
+        std::vector<std::vector<std::vector<std::pair<NodeID, NodeID> > > > previous_matchings;
         
         std::vector<std::vector<double> > cross_run_similarities(algorithms.size(), std::vector<double>(result_size, 0));
         std::vector<std::vector<int> > cross_run_sim_counters(algorithms.size(), std::vector<int>(result_size, 0));
@@ -114,9 +111,12 @@ int main (int argc, char ** argv) {
         double similarity = 0;
         int sim_counter = 0;
         
-        std::vector<bool> nodes = std::vector<bool>(n, false);
+        std::vector<bool> nodes(n, false);
+        std::vector<int> node_degrees(n, 0);
         
-        /* start calculations */
+        
+        //================// START CALCULATIONS //================//
+        
         for (int k = 0; k < conf.multi_run; ++k) { // run the whole thing several times
 //            std::cout << "run " << k+1 << "/" << conf.multi_run << std::endl;
             // hold all matchings of one run in vector.
@@ -132,38 +132,59 @@ int main (int argc, char ** argv) {
                 int deletions = 0;
                 int j = 0; // counter for entries in data vectors. from range 0 to result_size
                 
+                node_degrees.resize(0);
+                node_degrees.resize(n, 0);
+                
                 for (size_t i = 0; i < edge_sequence.size(); ++i) { // iterate through sequence
                     std::pair<NodeID, NodeID> edge = edge_sequence.at(i).second;
                     
                     double tmp;
+                    bool success;
                     
                     // for every NodeID save if it exists or not.
                     nodes.at(edge.first) = true;
                     nodes.at(edge.second) = true;
                     
-                    /* determine whether to do an insertion or a deletion */
+                    // determine whether to do an insertion or a deletion
                     if (edge_sequence.at(i).first) {
-                        algorithm->new_edge(edge.first, edge.second, tmp);
+                        success = algorithm->new_edge(edge.first, edge.second, tmp);
+                        
+                        if (success) {
+                            node_degrees.at(edge.first) = node_degrees.at(edge.first) + 1;
+                            node_degrees.at(edge.second) = node_degrees.at(edge.second) + 1;
+                        }
                         
                         insertions++;
                     } else {
-                        algorithm->remove_edge(edge.first, edge.second, tmp);
+                        success = algorithm->remove_edge(edge.first, edge.second, tmp);
+                        
+                        if (success) {
+                            if (node_degrees.at(edge.first) > 0) {
+                                node_degrees.at(edge.first) = node_degrees.at(edge.first) - 1;
+                            } else {
+                                node_degrees.at(edge.first) = 0;
+                            }
+                            
+                            if (node_degrees.at(edge.second) > 0) {
+                                node_degrees.at(edge.second) = node_degrees.at(edge.second) - 1;
+                            } else {
+                                node_degrees.at(edge.second) = 0;
+                            }
+                        }
                         
                         deletions++;
                     }
                     
                     time_elapsed += tmp;
                     
-                    /*  every at_once steps we acquire data */
+                    // every at_once steps we collect data
                     if ((i+1) % conf.at_once == 0 || i == edge_sequence.size() - 1) {
-//                        std::cout << "processed " << i+1 << " of " << edge_sequence.size() << " sequence steps" << std::endl;
                         std::vector<std::pair<NodeID, NodeID> > matching = algorithm->getM();
                         
                         algorithm->counters_next();
                         
                         // validate the matching to exclude errors in the algorithm
                         quality_metrics::matching_validation(matching);
-//                        print_matching(std::cout, matching);
                         
                         
                         // do snapshots
@@ -175,7 +196,7 @@ int main (int argc, char ** argv) {
                         matchings.at(l).at(j) = matching;
                         
                         combined_data.at(l).at(j).at(0) = insertions;
-                        combined_data.at(l).at(j).at(1) = deletions;
+                        combined_data.at(l).at(j).at(1) = count_nodes(node_degrees, 1); // count number of nodes with degree > 1
                         
                         // size gets divided by two since M holds every edge twice as (u,v) and (v,u)
                         combined_data.at(l).at(j).at(2) = algorithm->getG().number_of_edges()/2;
@@ -229,8 +250,7 @@ int main (int argc, char ** argv) {
         } // end of multiple runs with the same algorithm
         
         
-        //================// COLLECT INFORMATION //================//
-        
+        //================// PROCESS INFORMATION AND PRINT TO FILE //================//
         
         // get counters
         counters::print(counters_file);
@@ -249,16 +269,15 @@ int main (int argc, char ** argv) {
         
         output_file << std::endl;
         
-        /* 
-         * matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm.
-         * see above for details, ~line 90.
-         * 
-         * therefore the size of every subvector in matchings should have the same size, namely the result size.
-         * however the size of the calculated matchings inside the subvector can differ.
-         * 
-         * in the following if-block we iterate through the sequence steps and compare the matching resutls of different algorithms
-         * for every time-step.
-         */
+        // matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm.
+        // see above for details, ~line 90.
+        // 
+        // therefore the size of every subvector in matchings should have the same size, namely the result size.
+        // however the size of the calculated matchings inside the subvector can differ.
+        // 
+        // in the following if-block we iterate through the sequence steps and compare the matching resutls of different algorithms
+        // for every time-step.
+        //
         /*
         for (size_t m = 0; m < algorithms.size(); ++m) {
             // TODO: what does upper_limit mean? why do i need it? i suspect it should be the other way around
@@ -321,7 +340,6 @@ int main (int argc, char ** argv) {
                             
                             // check that we don't divdide by zero
                             << (cross_run_sim_counters.at(j).at(i) ? cross_run_similarities.at(j).at(i) / cross_run_sim_counters.at(j).at(i) : 0) << " ";
-//                            << cross_algorithm_matching_intersect.at(j).at(i) << " ";
                             
                 print_matching(matching_file, matchings.at(j).at(i));
             }
@@ -337,7 +355,7 @@ int main (int argc, char ** argv) {
 }
 
 
-/* auxiliary functions */
+// auxiliary functions 
 
 dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double eps) {
     if (algorithm == ALGORITHM::bgs) {
@@ -361,3 +379,12 @@ NodeID count_nodes(std::vector<bool>& nodes) {
     return count;
 }
 
+NodeID count_nodes(std::vector<int>& nodes, int min_degree) {
+    NodeID count = 0;
+    
+    for (auto n : nodes) {
+        if (n >= min_degree) count++;
+    }
+    
+    return count;
+}

@@ -1,13 +1,14 @@
 #include "sequence.h"
 
-std::vector<std::string> MODE_NAMES = {"addition-only", "random-step", "sliding-window", "meyerhenke", "native"};
+std::vector<std::string> MODE_NAMES = {"addition-only", "random-step", "sliding-window", "meyerhenke", "pooled-meyerhenke", "native"};
 
-sequence::sequence (size_t n, size_t k, MODE mode, size_t window, long seed, std::string ifile) {
+sequence::sequence (size_t n, size_t k, MODE mode, size_t window, size_t poolsize, long seed, std::string ifile) {
     this->n = n;
     this->k = k;
     this->mode = mode;
     
     this->window = window;
+    this->poolsize = poolsize;
     
     if (seed < 0) {
         seed = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
@@ -30,6 +31,7 @@ sequence::sequence (size_t n, size_t k, MODE mode, size_t window, long seed, std
     built = false;
     
     ofile.open("sequences/" + get_name());
+    std::cout << "writing output to sequences/" << get_name() << std::endl;
     
     it = 0;
 }
@@ -180,6 +182,8 @@ void sequence::create () {
         create_sliding_window_seq();
     } else if (mode == MODE::meyerhenke) {
         create_meyerhenke_seq();
+    } else if (mode == MODE::pooled_meyerhenke) {
+        create_pooled_meyerhenke_seq();
     } else if (mode == MODE::native) {
         create_native_seq();
     } else {
@@ -364,6 +368,75 @@ void sequence::create_meyerhenke_seq() {
     }
 }
 
+void sequence::create_pooled_meyerhenke_seq() {
+    random_functions rng;
+    rng.setSeed(seed);
+    
+    std::vector<std::pair<NodeID, NodeID> > additions;
+    std::vector<std::pair<NodeID, NodeID> > pool;
+    
+    size_t i = 0;
+    
+    for (; i < window;) {
+        std::pair<NodeID, NodeID> edge = create_edge(rng).second;
+        edge_sequence.push_back({1, edge});
+        additions.push_back(edge);
+        i++;
+        add_count++;
+        print_last();
+    }
+    
+    for (; i < window * (1 + poolsize/100.0);) {
+        int index = rng.nextInt(0, additions.size()-1);
+        std::pair<NodeID, NodeID> edge = additions.at(index);
+        pool.push_back(edge);
+        
+        edge_sequence.push_back({0, edge});
+        i++;
+        del_count++;
+        print_last();
+    }
+    
+    for (; i < k - window;) {
+        int index = rng.nextInt(0, additions.size()-1);
+        std::pair<NodeID, NodeID> edge = additions.at(index);
+        
+        // remove edge from additions by overwriting taken edge with last edge, then deleting last edge
+        additions.at(index) = additions.back();
+        additions.pop_back();
+        
+        pool.push_back(edge);
+        
+        edge_sequence.push_back({0, edge});
+        i++;
+        del_count++;
+        print_last();
+        
+        // now one insertion step
+        
+        index = rng.nextInt(0, pool.size()-1);
+        edge = pool.at(index);
+        
+        pool.at(index) = pool.back();
+        pool.pop_back();
+        
+        additions.push_back(edge);
+        
+        edge_sequence.push_back({1, edge});
+        i++;
+        add_count++;
+        print_last();
+    }
+    
+    for (int j = 0; i < k;) {
+        std::pair<NodeID, NodeID> edge = additions.at(j++);
+        edge_sequence.push_back({0, edge});
+        i++;
+        del_count++;
+        print_last();
+    }
+}
+
 std::string sequence::get_name() {
     std::string name = "";
     
@@ -379,7 +452,7 @@ std::string sequence::get_name() {
     name = name + std::to_string(k) + "_";
     name = name + MODE_NAMES.at(mode);
     
-    if (mode == MODE::sliding_window || mode == MODE::meyerhenke) {
+    if (mode == MODE::sliding_window || mode == MODE::meyerhenke || mode == MODE::pooled_meyerhenke) {
         name = name + "_" + std::to_string(window);
     }
     
