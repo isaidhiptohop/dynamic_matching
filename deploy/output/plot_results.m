@@ -37,9 +37,14 @@ cols = 6;
 for i = 0:(size(data)(2)/cols - 1)
   n = [1:size(data)(1)];
 
+  figure(1);
+  hold on;
+  plot(n, data(:,1 + i*cols)./data(:,4 + i*cols), "color", color(i+2,:), "lineWidth", linewidth);
+  hold off;
+  
   figure(2);
   hold on;
-  plot(n, data(:,2 + i*cols), "color", color(i+2,:), "lineWidth", linewidth);
+  plot(n, (data(:,3 + i*cols).*2)./data(:,2 + i*cols), "color", (color(i+2,:).*0.5), "lineWidth", linewidth);
   hold off;
   
   # plot edge cardinality of graph
@@ -125,7 +130,7 @@ title(strcat("runtime", options));
 legend("baswana-gupta-sen", "naive eps=0.5", "naive eps=0.1", "naive eps=0.01", "neiman-solomon", "global path", "location", "southoutside");
 ylabel("runtime in seconds");
 xlabel(strcat("sequence step x", num2str(at_once)));
-axis([0 size(data)(1) 0 quantile(quantile(runtimes, 0.95), 0.95)*2])#axis([0 size(data)(1) 0 max(max(runtimes))]);
+axis([0 size(data)(1) 0 quantile(quantile(runtimes, 0.95), 0.95)*1.5])#axis([0 size(data)(1) 0 max(max(runtimes))]);
 
 figure(6);
 title(strcat("cross run jaccard similarity of matchings", options));

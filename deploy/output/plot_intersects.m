@@ -41,7 +41,9 @@ for i=1:3:cols # 3 columns for every comparision: matching1.size matching2.size 
   ylabel("edge set cardinality");
   axis(axis_m);
 
-  saveas(fig, strcat(prefix, "img/intersect_", names_short(k,:), "_", names_short(l,:) ,".png"));
+  if (exist(strcat(prefix, "img")) == 7) 
+    saveas(fig, strcat(prefix, "img/intersect_", names_short(k,:), "_", names_short(l,:) ,".png"));
+  endif
   
   if (l == k_max)
     k = k+1;
