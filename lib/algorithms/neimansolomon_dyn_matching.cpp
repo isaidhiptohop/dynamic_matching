@@ -112,11 +112,6 @@ bool neimansolomon_dyn_matching::Fv::has_free () {
 }
 
 bool neimansolomon_dyn_matching::Fv::get_free (NodeID& index) { // returns false if there is no free, and true + reference when there is a free neighbour
-//    std::cout << "free neighbours: " << total_n << std::endl;
-    #ifdef DM_COUNTERS
-        counters::get("ns").get("get_free()").inc();
-    #endif
-    
     if (!has_free()) return false;
     
     index = 0;
@@ -151,23 +146,8 @@ neimansolomon_dyn_matching::neimansolomon_dyn_matching (dyn_graph_access* G) : d
     
     #ifdef DM_COUNTERS
         counters::create("ns");
-        counters::get("ns").create("match()");
-        counters::get("ns").create("get_free()");
-        
-        counters::get("ns").create_d("rt_in");
-        counters::get("ns").create_d("rt_out");
-        counters::get("ns").create_d("rt_get_free()");
-        
-        counters::get("ns").create_d("rt_in_G");
-        counters::get("ns").create_d("rt_out_G");
-        /*
-        counters::new_counter("neighbours_of_u");
-        counters::new_counter("u_s");
-        counters::new_counter("easy_insert_ns");
-        counters::new_counter("complex_insert_aug_path");
-        counters::new_counter("complex_insert_is_free");
-        counters::new_counter("remove_matched_edge_ns");
-        */
+        counters::get("ns").create("direct_match");
+        counters::get("ns").create("resolve_augpath");
     #endif
 }
 
@@ -180,18 +160,9 @@ bool neimansolomon_dyn_matching::new_edge(NodeID source, NodeID target, double& 
     
     ASSERT_TRUE(foo == bar);
     
-    #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
-        counters::get("ns").get_d("rt_in_G").add(elapsed);
-    #endif
-    
     t.restart();
     handle_addition(source, target);
     elapsed = t.elapsed();
-    
-    #ifdef DM_COUNTERS
-        counters::get("ns").get_d("rt_in").add(elapsed);
-    #endif
     
     return foo;
 }
@@ -218,6 +189,7 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
         match(u, v);                 // match them!
         
         #ifdef DM_COUNTERS
+            counters::get("ns").get("direct_match").inc();
         #endif
     } else if (is_free(u) || is_free(v)) {
         // if u is free, then the code works out fine,
@@ -246,10 +218,9 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
             match(u, v);
             match(v_, get_free(v_));
             #ifdef DM_COUNTERS
+                counters::get("ns").get("resolve_augpath").inc();
             #endif
         } else {
-            #ifdef DM_COUNTERS
-            #endif
             // tell all neighbours of u, that u is free
             for (NodeID w : N.at(u).allElements()) {
                 F.at(w).insert(u);
@@ -268,18 +239,9 @@ bool neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target, doubl
     
     ASSERT_TRUE(foo == bar);
     
-    #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
-        counters::get("ns").get_d("rt_out_G").add(elapsed);
-    #endif
-    
     t.restart();
     handle_deletion(source, target);
     elapsed = t.elapsed();
-    
-    #ifdef DM_COUNTERS
-        counters::get("ns").get_d("rt_out").add(elapsed);
-    #endif
     
     return foo;
 }
@@ -338,16 +300,8 @@ NodeID neimansolomon_dyn_matching::get_free (NodeID node) {
     // before calling get_free, I'm going to do it likewise.
     // therefore I assume and assert, that get_free has found 
     // a free node
-    #ifdef DM_COUNTERS
-        timer t;
-    #endif
     
     ASSERT_TRUE(F.at(node).get_free(free_node));
-    
-    #ifdef DM_COUNTERS
-        double elapsed = t.elapsed();
-        counters::get("ns").get_d("rt_get_free()").add(elapsed);
-    #endif
     
     return free_node;
 }
@@ -376,10 +330,6 @@ void neimansolomon_dyn_matching::match (NodeID u, NodeID v) {
     
     M.get(Match(u, v))->has_mate = true;
     M.get(Match(v, u))->has_mate = true;
-    
-    #ifdef DM_COUNTERS
-        counters::get("ns").get("match()").inc();
-    #endif
     
     //)M.print();
 }
@@ -420,9 +370,6 @@ void neimansolomon_dyn_matching::aug_path (NodeID u) {
         match(u, w);
         match(w_, x);
     } else {
-        #ifdef DM_COUNTERS 
-        #endif
-        
         for (NodeID dummy : N.at(u).allElements()) {
             F.at(dummy).insert(u);
         }
@@ -463,17 +410,8 @@ NodeID neimansolomon_dyn_matching::surrogate (NodeID u) {
 }
 
 void neimansolomon_dyn_matching::handle_deletion (NodeID u, NodeID v) {
-    //std::cout << "removing: " << u << "," << v << std::endl;
-    //std::cout << "N(u):" << std::endl; 
-    //N.at(u).print();
-    //std::cout << "N(v):" << std::endl; 
-    //N.at(v).print();
-    
     N.at(u).remove(v);
     N.at(v).remove(u);
-    
-    //N.at(u).print();
-    //N.at(v).print();
     
     if (F_max.contains(u)) {
         F_max.changeKey(u, deg(u));
@@ -489,8 +427,6 @@ void neimansolomon_dyn_matching::handle_deletion (NodeID u, NodeID v) {
         (!M.isIn(v)) || // 1.
         (M.isIn(u) && M.isIn(v) && u != M.get(v)->mate) // 2.
     ) {
-//        ASSERT_TRUE(v != M.get(u)->mate); // this assertion holds only for case 2., not for 1.
-        
         if (is_free(u)) {
             F.at(v).remove(u);
         }
@@ -522,23 +458,13 @@ void neimansolomon_dyn_matching::handle_deletion (NodeID u, NodeID v) {
                 }
             } while (surrogated);
         }
-        
-        #ifdef DM_COUNTERS
-        #endif
     }
 }
 
 void neimansolomon_dyn_matching::counters_next() {
     #ifdef DM_COUNTERS
-        counters::get("ns").get("match()").next();
-        counters::get("ns").get("get_free()").next();
-        
-        counters::get("ns").get_d("rt_in").next();
-        counters::get("ns").get_d("rt_out").next();
-        counters::get("ns").get_d("rt_get_free()").next();
-        
-        counters::get("ns").get_d("rt_in_G").next();
-        counters::get("ns").get_d("rt_out_G").next();
+        counters::get("ns").get("direct_match").next();
+        counters::get("ns").get("resolve_augpath").next();
     #endif
 }
 

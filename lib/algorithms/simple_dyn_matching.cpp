@@ -43,13 +43,6 @@ simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn
     #ifdef DM_COUNTERS
         counters::create(std::string("naive" + std::to_string(eps)));
         counters::get(std::string("naive" + std::to_string(eps))).create("match()");
-        counters::get(std::string("naive" + std::to_string(eps))).create("solve_conflict()");
-        
-        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_in");
-        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_out");
-        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_in_G");
-        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_out_G");
-        counters::get(std::string("naive" + std::to_string(eps))).create_d("rt_solve_conflict()");
     #endif
 //    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 //        auto a = std::chrono::system_clock::now();
@@ -64,11 +57,6 @@ bool simple_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed
     
     ASSERT_TRUE(foo == bar);
     
-    #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in_G").add(elapsed);
-    #endif
-    
     // starting calculation of matching
     t.restart();
     
@@ -78,10 +66,6 @@ bool simple_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed
     }
     
     elapsed = t.elapsed();
-    
-    #ifdef DM_COUNTERS
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in").add(elapsed);
-    #endif
     
     // finished calculation of matching
     
@@ -96,11 +80,6 @@ bool simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elap
     
     ASSERT_TRUE(foo == bar);
     
-    #ifdef DM_COUNTERS
-        elapsed = t.elapsed();
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out_G").add(elapsed);
-    #endif
-    
     /* starting calculation of matching */
     
     t.restart();
@@ -110,24 +89,11 @@ bool simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elap
         
         ASSERT_TRUE(!isMatched(source, target));
         
-        #ifdef DM_COUNTERS
-            timer t2;
-        #endif
-        
         solve_conflict(source, 0);
         solve_conflict(target, 0);
-        
-        #ifdef DM_COUNTERS
-            elapsed = t2.elapsed();
-            counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_solve_conflict()").add(elapsed);
-        #endif
     }
     
     elapsed = t.elapsed();
-    
-    #ifdef DM_COUNTERS
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out").add(elapsed);
-    #endif
     
     /* finished calculation of matching */
     
@@ -194,16 +160,6 @@ void simple_dyn_matching::unmatch (NodeID u, NodeID v) {
 NodeID simple_dyn_matching::getMatchedEdge (NodeID source) {
     if (freeVertex(source)) return -1;
     
-    // not more than one edge per node allowed for a matching
-/*
-    if (M.getEdgesFromNode(source).size() != 1) {
-        std::cout << "going to fail... " << source << " has " << M.getEdgesFromNode(source).size() << " matched edges: " << std::endl;
-        for (auto e : M.getEdgesFromNode(source)) {
-            std::cout << e.target << " ";
-        }
-        std::cout << std::endl;
-    }
-*/ 
     ASSERT_TRUE(M.getEdgesFromNode(source).size() == 1);
     return M.getEdgesFromNode(source).at(0).target;
 }
@@ -241,21 +197,10 @@ void simple_dyn_matching::solve_conflict (NodeID u, int step) {
         // no conflict, no trouble. simply add the edge to the matching.
         match(u,v);
     }
-    
-    #ifdef DM_COUNTERS
-        counters::get(std::string("naive" + std::to_string(eps))).get("solve_conflict()").inc();
-    #endif
 }
 
 void simple_dyn_matching::counters_next() {
     #ifdef DM_COUNTERS
         counters::get(std::string("naive" + std::to_string(eps))).get("match()").next();
-        counters::get(std::string("naive" + std::to_string(eps))).get("solve_conflict()").next();
-        
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in").next();
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out").next();
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_in_G").next();
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_out_G").next();
-        counters::get(std::string("naive" + std::to_string(eps))).get_d("rt_solve_conflict()").next();
     #endif
 }
