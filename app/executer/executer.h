@@ -63,4 +63,9 @@ std::string get_output_filename (ex_config conf);
 // helper function to easily create graph
 dyn_graph_access* create_graph (size_t n);
 
+// auxiliary functions
+EdgeID get_cumulated_degree(dyn_graph_access& G, std::vector<std::pair<NodeID, NodeID> > edgeset);
+NodeID count_nodes(std::vector<bool>& nodes);
+NodeID count_nodes(std::vector<int>& nodes, int min_degree = 0);
+
 #endif // EXECUTER_H

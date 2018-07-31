@@ -179,3 +179,32 @@ dyn_graph_access* create_graph (size_t n) {
     return G;
 }
 
+EdgeID get_cumulated_degree(dyn_graph_access& G, std::vector<std::pair<NodeID, NodeID> > edgeset) {
+    EdgeID cum_degree = 0;
+    
+    for (auto e : edgeset) {
+        cum_degree += G.getNodeDegree(e.first);
+    }
+    
+    return cum_degree;
+}
+
+NodeID count_nodes(std::vector<bool>& nodes) {
+    NodeID count = 0;
+    
+    for (auto n : nodes) {
+        if (n) count++;
+    }
+    
+    return count;
+}
+
+NodeID count_nodes(std::vector<int>& nodes, int min_degree) {
+    NodeID count = 0;
+    
+    for (auto n : nodes) {
+        if (n >= min_degree) count++;
+    }
+    
+    return count;
+}

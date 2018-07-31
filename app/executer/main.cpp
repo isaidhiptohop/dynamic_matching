@@ -4,8 +4,6 @@
 
 // creates new instance of the passed algorithm.
 dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double eps);
-NodeID count_nodes(std::vector<bool>& nodes);
-NodeID count_nodes(std::vector<int>& nodes, int min_degree = 0);
 
 int main (int argc, char ** argv) {
     try {
@@ -195,7 +193,7 @@ int main (int argc, char ** argv) {
                         // save data in arrays, l = algorithm, j = entry
                         matchings.at(l).at(j) = matching;
                         
-                        combined_data.at(l).at(j).at(0) = insertions;
+                        combined_data.at(l).at(j).at(0) = get_cumulated_degree(*G, matching);
                         combined_data.at(l).at(j).at(1) = count_nodes(node_degrees, 1); // count number of nodes with degree > 1
                         
                         // size gets divided by two since M holds every edge twice as (u,v) and (v,u)
@@ -367,24 +365,4 @@ dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double
     } else {
         return nullptr;
     }
-}
-
-NodeID count_nodes(std::vector<bool>& nodes) {
-    NodeID count = 0;
-    
-    for (auto n : nodes) {
-        if (n) count++;
-    }
-    
-    return count;
-}
-
-NodeID count_nodes(std::vector<int>& nodes, int min_degree) {
-    NodeID count = 0;
-    
-    for (auto n : nodes) {
-        if (n >= min_degree) count++;
-    }
-    
-    return count;
 }

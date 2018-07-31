@@ -151,8 +151,18 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
     std::cout << "read " << buf.size() << " edges." << std::endl;
     
     // adjust sequence size to size of sequence in file
-    if (buf.size() < k) {
-        k = buf.size();
+    if (mode == MODE::only_addition || mode == MODE::random_step) {
+        if (buf.size() < k) {
+            k = buf.size();
+        }
+    } else if (mode == MODE::sliding_window) {
+        if (buf.size() < k/2) {
+            k = 2 * buf.size();
+        }
+    } else {
+        if (buf.size() < window) {
+            window = buf.size();
+        }
     }
     
     std::cout << "k after file read is " << k << std::endl;
