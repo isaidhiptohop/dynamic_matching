@@ -1,0 +1,140 @@
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/dbpedia-team -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/edit-enwiktionary -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/edit-frwiktionary -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/facebook-wosn-links -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/flickr-growth -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/link-dynamic-dewiki -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/link-dynamic-frwiki -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/link-dynamic-itwiki -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/link-dynamic-nlwiki -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/link-dynamic-plwiki -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/link-dynamic-simplewiki -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/livejournal-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/orkut-groupmemberships -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 100000 -p 10
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 1000000 -m pooled-meyerhenke -w 500000 -p 10
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 2000000 -m pooled-meyerhenke -w 1000000 -p 10
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 3000000 -m pooled-meyerhenke -w 1500000 -p 10
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 4000000 -m pooled-meyerhenke -w 2000000 -p 10
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 5000000 -m pooled-meyerhenke -w 2500000 -p 10
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 1000000 -m meyerhenke -w 100000
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 1000000 -m sliding-window -w 100000
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 1000000 -m addition-only -w 100000
+./sequencer -f konect/graphs/youtube-u-growth -s 4204737162 -n 100000 -k 1000000 -m random-step -w 100000
