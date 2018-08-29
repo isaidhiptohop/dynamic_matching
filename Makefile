@@ -9,13 +9,13 @@ all:
 debug:
 	make lib-debug
 	make app
-	make gpa
+	make gpa-debug
 	make copy-executables
 
 debug-w-counters:
 	make lib-debug-w-counters
 	make app
-	make gpa
+	make gpa-debug
 	make copy-executables
 
 w-counters:
@@ -42,6 +42,10 @@ app:
 gpa:
 	cd gpa/lib && make 
 	cd gpa/app && make 
+
+gpa-debug:
+	cd gpa/lib && make
+	cd gpa/app && make debug
 
 copy-executables:
 	cp app/compare/compare deploy/
