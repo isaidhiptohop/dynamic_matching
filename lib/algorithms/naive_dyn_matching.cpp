@@ -1,5 +1,5 @@
 /******************************************************************************
- * simple_dyn_matching.cpp
+ * naive_dyn_matching.cpp
  *
  *
  ******************************************************************************
@@ -17,7 +17,7 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
-#include "simple_dyn_matching.h"
+#include "naive_dyn_matching.h"
 
 #ifdef DM_COUNTERS
     #include "counters.h"
@@ -29,7 +29,7 @@ int RNG::nextInt (int lb, int rb) {
 }
 */
 
-simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn_matching(G) {
+naive_dyn_matching::naive_dyn_matching (dyn_graph_access* G) : dyn_matching(G) {
     M.start_construction(G->number_of_nodes());
     
     for (int i = 0; i < G->number_of_nodes(); ++i) {
@@ -38,18 +38,16 @@ simple_dyn_matching::simple_dyn_matching (dyn_graph_access* G, double eps) : dyn
     
     M.finish_construction();
 
-    this->eps = eps;
-    
     #ifdef DM_COUNTERS
-        counters::create(std::string("rw_v1" + std::to_string(eps)));
-        counters::get(std::string("rw_v1" + std::to_string(eps))).create("match()");
+        counters::create("naive");
+        counters::get("naive").create("match()");
     #endif
 //    auto a = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 //        auto a = std::chrono::system_clock::now();
 //    rng.setSeed(a);
 }
 
-bool simple_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
+bool naive_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed) {
     timer t;
     
     bool foo = G->new_edge(source, target);
@@ -72,7 +70,7 @@ bool simple_dyn_matching::new_edge(NodeID source, NodeID target, double& elapsed
     return foo;
 }
 
-bool simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
+bool naive_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
     timer t;
     
     bool foo = G->remove_edge(source, target);
@@ -89,8 +87,8 @@ bool simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elap
         
         ASSERT_TRUE(!isMatched(source, target));
         
-        solve_conflict(source, 0);
-        solve_conflict(target, 0);
+        settle(source);
+        settle(target);
     }
     
     elapsed = t.elapsed();
@@ -100,7 +98,7 @@ bool simple_dyn_matching::remove_edge(NodeID source, NodeID target, double& elap
     return foo;
 }
 
-std::vector<std::pair<NodeID, NodeID> > simple_dyn_matching::getM () {
+std::vector<std::pair<NodeID, NodeID> > naive_dyn_matching::getM () {
     std::vector<std::pair<NodeID, NodeID> > M_vector;
     for(NodeID n = 0, n_end = M.number_of_nodes(); n < n_end; ++n) {
         for(EdgeID e = 0, e_end = M.getEdgesFromNode(n).size(); e < e_end; ++e) {
@@ -112,17 +110,17 @@ std::vector<std::pair<NodeID, NodeID> > simple_dyn_matching::getM () {
 }
 
 /*
-dyn_graph_access simple_dyn_matching::getM () {
+dyn_graph_access naive_dyn_matching::getM () {
     return M;
 }
 */
 // checks whether a vertex is free
-bool simple_dyn_matching::freeVertex (NodeID node) {
+bool naive_dyn_matching::freeVertex (NodeID node) {
     return M.getEdgesFromNode(node).size() == 0;
 }
 
 // checks whether an edge is matched or not
-bool simple_dyn_matching::isMatched (NodeID source, NodeID target) {
+bool naive_dyn_matching::isMatched (NodeID source, NodeID target) {
 ///*
     bool a = M.isEdge(source, target);
     bool b = M.isEdge(target, source);
@@ -131,7 +129,7 @@ bool simple_dyn_matching::isMatched (NodeID source, NodeID target) {
     return M.isEdge(source, target) || M.isEdge(target, source);
 }
 
-void simple_dyn_matching::match (NodeID u, NodeID v) {
+void naive_dyn_matching::match (NodeID u, NodeID v) {
     ASSERT_TRUE(M.getNodeDegree(u) == 0);
     ASSERT_TRUE(M.getNodeDegree(v) == 0);
     ASSERT_TRUE(!isMatched(u, v));
@@ -142,11 +140,11 @@ void simple_dyn_matching::match (NodeID u, NodeID v) {
     ASSERT_TRUE(M.getNodeDegree(v) == 1);
     
     #ifdef DM_COUNTERS
-        counters::get(std::string("rw_v1" + std::to_string(eps))).get("match()").inc();
+        counters::get("naive").get("match()").inc();
     #endif
 }
 
-void simple_dyn_matching::unmatch (NodeID u, NodeID v) {
+void naive_dyn_matching::unmatch (NodeID u, NodeID v) {
     ASSERT_TRUE(isMatched(u, v));
     ASSERT_TRUE(M.getNodeDegree(u) == 1);
     ASSERT_TRUE(M.getNodeDegree(v) == 1);
@@ -157,50 +155,33 @@ void simple_dyn_matching::unmatch (NodeID u, NodeID v) {
     ASSERT_TRUE(!isMatched(u, v));
 }
 
-NodeID simple_dyn_matching::getMatchedEdge (NodeID source) {
+NodeID naive_dyn_matching::getMatchedEdge (NodeID source) {
     if (freeVertex(source)) return -1;
     
     ASSERT_TRUE(M.getEdgesFromNode(source).size() == 1);
     return M.getEdgesFromNode(source).at(0).target;
 }
 
-void simple_dyn_matching::solve_conflict (NodeID u, int step) {
-    // do this recursion maximal 1/eps times
-    if (step >= (1.0/eps) || !freeVertex(u)) return;
+void naive_dyn_matching::settle (NodeID u) {
+    EdgeID deg_u = G->get_first_invalid_edge(u);
+    NodeID v;
+    bool mate_found = false;
     
-    // all edges between index 0 and max_index-1 really exist
-    EdgeID max_index = G->get_first_invalid_edge(u);
-    
-    // if the max_index is -1, then u holds 0 edges. in this case
-    // we don't choose a random edge, but simply quit searching
-    // for matchable edges.
-    if (max_index <= 0) {
-        return;
+    for (EdgeID i = 0; i < deg_u; ++i) {
+        v = G->getEdgeTarget(u, i);
+        if (freeVertex(v)) {
+            mate_found = true;
+            break;
+        }
     }
     
-    EdgeID new_matching_edge = random_functions::nextInt(0, max_index-1);
-    NodeID v = G->getEdgeTarget(u, new_matching_edge);
-    
-    // if the target node v is not free, remove the matched edge (v,w)
-    // add the edge (u,v) and call the functions recursively on w
-    if (!freeVertex(v)) {
-        NodeID w = getMatchedEdge(v);
-        
-        // remove the matched edge (v,w)
-        unmatch(v,w);
-        
-        // add the edge (u,v) to the matching
-        match(u,v);
-        
-        solve_conflict(w, ++step);
-    } else {
-        // no conflict, no trouble. simply add the edge to the matching.
-        match(u,v);
+    if (mate_found) {
+        match(u, v);
     }
 }
 
-void simple_dyn_matching::counters_next() {
+void naive_dyn_matching::counters_next() {
     #ifdef DM_COUNTERS
-        counters::get(std::string("rw_v1" + std::to_string(eps))).get("match()").next();
+        counters::get("naive").get("match()").next();
     #endif
 }

@@ -306,6 +306,31 @@ counters::counter_set& counters::get (const std::string& name) {
     throw std::string("counter set \"" + name + "\" not found.");
 }
 
+void counters::divide_by (size_t divisor) {
+    for (auto cs : all()) {
+        cs.second.divide_by(divisor);
+    }
+}
+
+void counters::divide_by_d (double divisor) {
+    for (auto cs : all()) {
+        cs.second.divide_by_d(divisor);
+    }
+}
+
+
+void counters::print_names(std::ostream& o) {
+    for (auto cs : all()) { 
+        for (auto c : cs.second.all()) {
+            o << cs.first << "_" << c.first << std::endl;
+        }
+        
+        for (auto c : cs.second.all_d()) {
+            o << cs.first << "_" << c.first << std::endl;
+        }
+    }
+}
+
 void counters::print (std::ostream& o) {
     size_t min_size = -1;
     size_t min_counter = 0;
@@ -335,7 +360,7 @@ void counters::print (std::ostream& o) {
     }
     
     o << "# ";
-    for (auto cs : all()) { // go through counters. each line contains one record from each counter
+    for (auto cs : all()) {
         o << cs.first << ":{";
         for (auto c : cs.second.all()) {
             if (c.first == cs.second.all().back().first) {

@@ -74,6 +74,10 @@ public:
     static bool exists (const std::string& name);
     static counter_set& get(const std::string& name);
     
+    static void divide_by (size_t divisor);
+    static void divide_by_d (double divisor);
+    
+    static void print_names(std::ostream& o);
     static void print(std::ostream& o);
     
 private:

@@ -6,7 +6,10 @@ library:
 	cd io && make library
 	cd tools && make library
 	ar -cvq libdynamic_matching.a \
+		./algorithms/naive_dyn_matching.o \
 		./algorithms/simple_dyn_matching.o \
+		./algorithms/randomwalkv2_dyn_matching.o \
+		./algorithms/randomwalkv3_dyn_matching.o \
 		./algorithms/baswanaguptasen_dyn_matching.o \
 		./algorithms/neimansolomon_dyn_matching.o \
 		./algorithms/dyn_matching.o \
@@ -30,7 +33,10 @@ library_counters:
 	cd io && make library
 	cd tools && make library
 	ar -cvq libdynamic_matching.a \
+		./algorithms/naive_dyn_matching.o \
 		./algorithms/simple_dyn_matching.o \
+		./algorithms/randomwalkv2_dyn_matching.o \
+		./algorithms/randomwalkv3_dyn_matching.o \
 		./algorithms/baswanaguptasen_dyn_matching.o \
 		./algorithms/neimansolomon_dyn_matching.o \
 		./algorithms/dyn_matching.o \
@@ -54,7 +60,10 @@ library_counters_debug:
 	cd io && make library_debug
 	cd tools && make library_debug
 	ar -cvq libdynamic_matching.a \
+		./algorithms/naive_dyn_matching.o \
 		./algorithms/simple_dyn_matching.o \
+		./algorithms/randomwalkv2_dyn_matching.o \
+		./algorithms/randomwalkv3_dyn_matching.o \
 		./algorithms/baswanaguptasen_dyn_matching.o \
 		./algorithms/neimansolomon_dyn_matching.o \
 		./algorithms/dyn_matching.o \
@@ -78,7 +87,10 @@ library_debug:
 	cd io && make library_debug
 	cd tools && make library_debug
 	ar -cvq libdynamic_matching.a \
+		./algorithms/naive_dyn_matching.o \
 		./algorithms/simple_dyn_matching.o \
+		./algorithms/randomwalkv2_dyn_matching.o \
+		./algorithms/randomwalkv3_dyn_matching.o \
 		./algorithms/baswanaguptasen_dyn_matching.o \
 		./algorithms/neimansolomon_dyn_matching.o \
 		./algorithms/dyn_matching.o \

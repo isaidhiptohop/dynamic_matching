@@ -175,13 +175,13 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
     
     if (F_max.contains(u)) {
         F_max.changeKey(u, deg(u));
-    } else {
+    } else if (!mate(u)) {
         F_max.insert(u, deg(u));
     }
     
     if (F_max.contains(v)) {
         F_max.changeKey(v, deg(v));
-    } else {
+    } else if (!mate(v)) {
         F_max.insert(v, deg(v));
     }
     
@@ -229,6 +229,8 @@ void neimansolomon_dyn_matching::handle_addition (NodeID u, NodeID v) {
     } else {
         // do nothing
     }
+    
+    handle_problematic();
 }
     
 bool neimansolomon_dyn_matching::remove_edge(NodeID source, NodeID target, double& elapsed) {
@@ -331,6 +333,9 @@ void neimansolomon_dyn_matching::match (NodeID u, NodeID v) {
     M.get(Match(u, v))->has_mate = true;
     M.get(Match(v, u))->has_mate = true;
     
+    ASSERT_TRUE(!F_max.contains(u));
+    ASSERT_TRUE(!F_max.contains(v));
+    
     //)M.print();
 }
 
@@ -344,6 +349,7 @@ NodeID neimansolomon_dyn_matching::threshold () {
 
 void neimansolomon_dyn_matching::aug_path (NodeID u) {
     ASSERT_TRUE(!has_free(u));
+    ASSERT_TRUE(!mate(u));
     ASSERT_TRUE(deg(u) <= std::sqrt(2*G->number_of_nodes() + 2*G->number_of_edges()));
     
     NodeID w, w_, x;
@@ -386,8 +392,9 @@ void neimansolomon_dyn_matching::aug_path (NodeID u) {
 }
 
 NodeID neimansolomon_dyn_matching::surrogate (NodeID u) {
+//    ASSERT_TRUE(mate(u));
     ASSERT_TRUE(!has_free(u));
-    ASSERT_TRUE(deg(u) > threshold());
+//    ASSERT_TRUE(deg(u) > threshold());
     
     NodeID w, w_;
     
@@ -404,7 +411,11 @@ NodeID neimansolomon_dyn_matching::surrogate (NodeID u) {
     M.remove(w);
     M.remove(w_);
     
+    ASSERT_TRUE(!mate(w_));
+    
     match(u, w);
+
+    ASSERT_TRUE(!mate(w_));
     
     return w_;
 }
@@ -458,6 +469,25 @@ void neimansolomon_dyn_matching::handle_deletion (NodeID u, NodeID v) {
                 }
             } while (surrogated);
         }
+    }
+    
+    // here the extra step of handling problematic vertices way before they can violate invariant 1 is actually missing.
+    handle_problematic();
+}
+
+void neimansolomon_dyn_matching::handle_problematic () {
+    if (!F_max.empty()) {
+        NodeID u = F_max.maxElement();
+        
+        if (deg(u) <= std::sqrt(2 * G->number_of_nodes())) return;
+        
+        ASSERT_TRUE(!mate(u));
+        
+        NodeID s_u = surrogate(u);
+        
+        ASSERT_TRUE(!mate(s_u));
+        
+        aug_path(s_u);
     }
 }
 

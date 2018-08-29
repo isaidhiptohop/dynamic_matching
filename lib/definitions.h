@@ -56,6 +56,16 @@ typedef unsigned int 	Count;
 typedef std::vector<NodeID> boundary_starting_nodes;
 typedef long FlowType;
 
+struct Node {
+    EdgeID firstEdge;
+    NodeWeight weight;
+};
+
+struct Edge {
+    NodeID target;
+    EdgeWeight weight;
+};
+
 const EdgeID UNDEFINED_EDGE            = std::numeric_limits<EdgeID>::max();
 const NodeID NOTMAPPED                 = std::numeric_limits<EdgeID>::max();
 const NodeID UNDEFINED_NODE            = std::numeric_limits<NodeID>::max();

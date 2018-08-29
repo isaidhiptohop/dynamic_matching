@@ -30,19 +30,6 @@
 #include "graph_access.h"
 
 
-#ifndef GRAPH_ACCESS_EFRXO4X2
-struct Node {
-    EdgeID firstEdge;
-    NodeWeight weight;
-};
-
-struct Edge {
-    NodeID target;
-    EdgeWeight weight;
-};
-#endif
-
-
 class dyn_graph_access {
 public:
     dyn_graph_access();    

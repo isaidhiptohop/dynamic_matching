@@ -27,6 +27,7 @@ dyn_matching(G) {
         counters::create("bgs");
         counters::get("bgs").create("in_det");
         counters::get("bgs").create("in_rand");
+        counters::get("bgs").create("repair_invariant");
         counters::get("bgs").create("out_det");
         counters::get("bgs").create("out_rand");
     #endif
@@ -152,9 +153,17 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
     O.at(u).insert({v, v});
     O.at(v).insert({u, u});
     
+    #ifdef DM_COUNTERS
+        bool matched = false;
+    #endif
+    
     // if both nodes are free, simply match them
     if (is_free(u) && is_free(v)) {
         match(u, v);
+        
+        #ifdef DM_COUNTERS
+            matched = true;
+        #endif
     }
     
     // swap the nodes, so that u owns more edges than v
@@ -166,7 +175,11 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
     
     if (O.at(u).size() >= std::sqrt(G->number_of_nodes())) {
         #ifdef DM_COUNTERS
-            counters::get("bgs").get("in_rand").inc();
+            if (matched) {
+                counters::get("bgs").get("in_rand").inc();
+            } else {
+                counters::get("bgs").get("repair_invariant").inc();
+            }
         #endif
         // (u,w) becomes unmatched, if w is the mate of u.
         NodeID * w = mate(u);
@@ -197,7 +210,9 @@ void baswanaguptasen_dyn_matching::handling_insertion (NodeID u, NodeID v) {
     } 
     #ifdef DM_COUNTERS
         else {
-            counters::get("bgs").get("in_det").inc();
+            if (matched) { // increase this counter only if match has been called AND the issue was not solved using random_settle
+                counters::get("bgs").get("in_det").inc();
+            }
         }
     #endif
 }
@@ -367,6 +382,7 @@ void baswanaguptasen_dyn_matching::counters_next() {
     #ifdef DM_COUNTERS
         counters::get("bgs").get("in_det").next();
         counters::get("bgs").get("in_rand").next();
+        counters::get("bgs").get("repair_invariant").next();
         counters::get("bgs").get("out_det").next();
         counters::get("bgs").get("out_rand").next();
     #endif

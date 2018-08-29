@@ -135,6 +135,9 @@ private:
     // function to wrap the matchings update
     void handle_addition (NodeID u, NodeID v);
     void handle_deletion (NodeID u, NodeID v);
+    
+    // function to bound vertex degree
+    void handle_problematic ();
 };
 
 std::ostream& operator<<(std::ostream& o, const neimansolomon_dyn_matching::Match& rop);
