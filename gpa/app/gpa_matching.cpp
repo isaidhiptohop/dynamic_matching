@@ -31,6 +31,7 @@
 
 #include "../lib/config.h"
 #include "../lib/data_structure/graph_access.h"
+#include "../lib/data_structure/dyn_graph_access.h"
 #include "../lib/io/graph_io.h"
 #include "../lib/matching/gpa_matching.h"
 #include "../lib/tools/timer.h"
@@ -39,58 +40,83 @@
 
 #include <math.h>
 
-//using namespace std;
-
-struct file_reader {
-    std::string directory;
-    int iterator;
-    int step;
-    
-    file_reader ();
-    bool next_snapshot(basicGraph& realGraph);
-};
-
 #include "parse_parameters.h"
 
+std::vector<std::string> split (const std::string& input, const char& mark);
+size_t read_sequence (std::string file, std::vector<std::pair<int, std::pair<NodeID, NodeID> > >& edge_sequence);
+basicGraph& init (size_t n, basicGraph& graph);
+basicGraph& build_from_sequence (std::vector<std::pair<int, std::pair<NodeID, NodeID> > >& edge_sequence, size_t iterator, size_t step, basicGraph& graph);
+    
 std::vector<std::pair<NodeID, NodeID> > matching_to_pairvec (const Matching & matching);
 void validate (const std::vector<std::pair<NodeID, NodeID> >& matching);
 void print_matching (std::ostream& o, const std::vector<std::pair<NodeID, NodeID> >& matching);
 
 int main(int argn, char **argv) {
-
+    try {
         Config config;
-        file_reader freader;
+        std::string fileinput = "";
+        unsigned step = 1;
         unsigned multi_run = 1;
         
-        int ret_code = parse_parameters(argn, argv, config, freader, multi_run); 
-
+        int ret_code = parse_parameters(argn, argv, config, fileinput, step, multi_run); 
+        
         if(ret_code) {
                 return 0;
         }
         
         basicGraph realGraph;
-
+        
         skappa_timer t;
         
         srand(config.seed);
         random_functions::setSeed(config.seed);
         
+        // fileinput should be of format "sequences/name.sequence", output directory should be "output/name_step/"
+        std::string directory = std::string("output/" + split(split(fileinput, '/').at(1), '.').at(0) + "_" + std::to_string(step) + "/");
         
-        std::ofstream matchings_file(std::string(freader.directory + "matchings_gpa").c_str());
-        std::ofstream data_file(std::string(freader.directory + "data_gpa").c_str());
+        std::ofstream matchings_file(std::string(directory + "matchings_gpa").c_str());
+        std::ofstream data_file(std::string(directory + "data_gpa").c_str());
         
         std::vector<double> time_elapsed;
         std::vector<EdgeID> graph_size;
+        
+        // input sequence
+        std::vector<std::pair<int, std::pair<NodeID, NodeID> > > edge_sequence;
+        size_t n = read_sequence(fileinput, edge_sequence);
         
         // dimensions: runs X sequence steps X edge set
         std::vector<std::vector<std::vector<std::pair<NodeID, NodeID> > > > matchings(multi_run);
         
         for (size_t i = 0; i < multi_run; ++i) {
-            freader.iterator = freader.step;
+            dyn_graph_access dynG;
             
+            // initialize dyn_graph_access dynG
+            dynG.start_construction(n, 0);
+            
+            for (size_t j = 0; j < n; ++j) {
+                dynG.new_node();
+            }
+            
+            dynG.finish_construction();
+            
+            // results iterator
             int j = 0;
-            while (freader.next_snapshot(realGraph)) {
-                graph_access G(&realGraph);
+            for (size_t k = 0; k < edge_sequence.size(); k += step) {
+                for (size_t l = k; l < k + step && l < edge_sequence.size(); ++l) {
+                    // apply sequence steps
+                    if (edge_sequence.at(l).first) {
+                        dynG.new_edge(edge_sequence.at(l).second.first, edge_sequence.at(l).second.second);
+                    } else {
+                        dynG.remove_edge(edge_sequence.at(l).second.first, edge_sequence.at(l).second.second);
+                    }
+                }
+                
+                // create static instance from dynamic graph
+                basicGraph * realGraph = dynG.convert_to_basic_graph();
+                printGraph(*realGraph);
+                
+                graph_access G (realGraph);
+                
                 double t_elapsed;
                 
                 t.restart();
@@ -116,14 +142,21 @@ int main(int argn, char **argv) {
                     graph_size.at(j) = G.number_of_edges();
                     j++;
                 }
+                
+                delete realGraph;
             }
         }
         
+        data_file << "# G M time" << std::endl;
+        
         for (size_t i = 0; i < time_elapsed.size(); ++i) {
-            data_file << graph_size.at(i)/2 << " " << matchings.at(0).at(i).size()/2 << " " << time_elapsed.at(i) << std::endl;
+            data_file << graph_size.at(i) << " " << matchings.at(0).at(i).size()/2 << " " << time_elapsed.at(i) << std::endl;
         }
         
         return 0;
+    } catch (std::bad_alloc e) {
+        std::cout << e.what() << std::endl;
+    }
 }
 
 std::vector<std::pair<NodeID, NodeID> > matching_to_pairvec (const Matching & matching) {
@@ -168,6 +201,62 @@ void print_matching (std::ostream& o, const std::vector<std::pair<NodeID, NodeID
     o << std::endl;
 }
 
+std::vector<std::string> split (const std::string& input, const char& mark) {
+    std::vector<std::string> substrings;
+    std::string buf = "";
+    
+    for (size_t i = 0; i < input.size(); ++i) {
+        if (input.at(i) != mark) {
+            buf = buf + input.at(i);
+        } else {
+            substrings.push_back(buf);
+            buf = "";
+        }
+    }
+    
+    if (buf != "") {
+        substrings.push_back(buf);
+    }
+    
+    return substrings;
+}
+
+size_t read_sequence (std::string file, std::vector<std::pair<int, std::pair<NodeID, NodeID> > >& edge_sequence) {
+    std::string line;
+    std::ifstream input(file);
+    edge_sequence.resize(0);
+    size_t n = 0;
+    int i = 0;
+    
+    if (input.is_open()) {
+        std::getline(input, line);
+        std::vector<std::string> substr = split(line, ' ');
+        
+        std::string hash = substr.at(0);
+        if (hash != "#") throw std::string("META DATA SEEMS TO BE MISSING");
+        
+//        n = std::stoul(substr.at(1).c_str());
+        
+        while (std::getline(input, line)) {
+            i++;
+            std::vector<std::string> substr = split(line, ' ');
+            
+            int addition = atoi(substr.at(0).c_str());
+            NodeID u = atoi(substr.at(1).c_str());
+            NodeID v = atoi(substr.at(2).c_str());
+            
+            if (u > n) n = u;
+            if (v > n) n = v;
+            
+            edge_sequence.push_back({addition, {u, v}});
+        }
+    }
+    
+    input.close();
+    
+    return n+1;
+}
+/*
 file_reader::file_reader() {
     directory = "";
     iterator = 0;
@@ -188,3 +277,4 @@ bool file_reader::next_snapshot(basicGraph& realGraph) {
     graph_io::readGraphWeighted(realGraph, file_name);
     return true;
 }
+*/

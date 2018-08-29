@@ -24,20 +24,18 @@
 #ifndef PARSE_PARAMETERS_GPJMGSM8_GPABRANCH
 #define PARSE_PARAMETERS_GPJMGSM8_GPABRANCH
 
-int parse_parameters(int argn, char **argv, Config & config, std::string& fileinput, unsigned& step, unsigned& multi_run) {
+int parse_parameters(int argn, char **argv, Config & config) {
         const char *progname = argv[0];
 
         // Setup argtable parameters.
         struct arg_lit *help                                 = arg_lit0(NULL, "help","Print help.");
         struct arg_str *filename                             = arg_strn(NULL, NULL, "FILE", 1, 1, "Path to graph file.");
         struct arg_int *user_seed                            = arg_int0(NULL, "seed", NULL, "Seed to use for the PRNG.");
-        struct arg_int *_step                                 = arg_int0(NULL, "step", NULL, "step size to read graph snapshots");
-        struct arg_int *_multi_run                           = arg_int0(NULL, "multi-runs", NULL, "amount of runs");
         struct arg_end *end                                  = arg_end(100);
 
         // Define argtable.
         void* argtable[] = {
-                help, filename, user_seed, _step, _multi_run, end
+                help, filename, user_seed, end
         };
 
         // Parse arguments.
@@ -62,7 +60,7 @@ int parse_parameters(int argn, char **argv, Config & config, std::string& filein
         }
 
         if(filename->count > 0) {
-                fileinput = filename->sval[0];
+                config.graph_filename = filename->sval[0];
         }
 
         config.seed = 0;
@@ -70,14 +68,6 @@ int parse_parameters(int argn, char **argv, Config & config, std::string& filein
                 config.seed = user_seed->ival[0];
         }
 
-        if(_step->count > 0) {
-                step = _step->ival[0];
-        }
-
-        if(_multi_run->count > 0) {
-                multi_run = _multi_run->ival[0];
-        }
-        
         return 0;
 }
 
