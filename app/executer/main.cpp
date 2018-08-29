@@ -5,6 +5,8 @@
 // creates new instance of the passed algorithm.
 dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double eps);
 
+std::string simplify (long secs);
+
 int main (int argc, char ** argv) {
     try {
         // get command line arguments and save them to ex_config struct 
@@ -28,8 +30,30 @@ int main (int argc, char ** argv) {
         
         
         // initialize list of algorithms 
-        std::vector<ALGORITHM> algorithms({ALGORITHM::bgs, ALGORITHM::naive, ALGORITHM::naive, ALGORITHM::naive, ALGORITHM::ns});
-        std::vector<double>    eps       ({0,              0.5,              0.1,              0.01,             0});
+        std::vector<ALGORITHM> algorithms({ALGORITHM::bgs, 
+                                           ALGORITHM::naive,
+                                           ALGORITHM::ns,
+                                           ALGORITHM::rw_v1, 
+                                           ALGORITHM::rw_v1, 
+                                           ALGORITHM::rw_v1,
+                                           ALGORITHM::rw_v2, 
+                                           ALGORITHM::rw_v2, 
+                                           ALGORITHM::rw_v2,
+                                           ALGORITHM::rw_v3
+        });
+        std::vector<double>    eps       ({0,
+                                           0,
+                                           0,
+                                           0.5,
+                                           0.1,
+                                           0.01,
+                                           0.5,
+                                           0.1,
+                                           0.01,
+                                           0
+        });
+        
+        ASSERT_TRUE(algorithms.size() == eps.size());
         
         srand(conf.seed);
         random_functions::setSeed(conf.seed);
@@ -55,7 +79,10 @@ int main (int argc, char ** argv) {
         std::ofstream counters_file;
         counters_file.open(output_filename + "/counters");
         
-        mkdir(std::string(output_filename + "/snapshots").c_str(), 0775);
+        std::ofstream counternames_file;
+        counternames_file.open(output_filename + "/counter_names");
+        
+//        mkdir(std::string(output_filename + "/snapshots").c_str(), 0775);
         
         
         // calculate size (lines) of the resulting data to reserve space.
@@ -106,14 +133,13 @@ int main (int argc, char ** argv) {
         std::vector<std::vector<double> > cross_run_similarities(algorithms.size(), std::vector<double>(result_size, 0));
         std::vector<std::vector<int> > cross_run_sim_counters(algorithms.size(), std::vector<int>(result_size, 0));
         
-        double similarity = 0;
-        int sim_counter = 0;
-        
         std::vector<bool> nodes(n, false);
         std::vector<int> node_degrees(n, 0);
         
         
         //================// START CALCULATIONS //================//
+        
+        timer t;
         
         for (int k = 0; k < conf.multi_run; ++k) { // run the whole thing several times
 //            std::cout << "run " << k+1 << "/" << conf.multi_run << std::endl;
@@ -185,10 +211,14 @@ int main (int argc, char ** argv) {
                         quality_metrics::matching_validation(matching);
                         
                         
-                        // do snapshots
-                        graph_access G_static;
-                        G->convert_to_graph_access(G_static);
-                        graph_io::writeGraph(G_static, std::string(output_filename + "/snapshots/snapshot_" + std::to_string(i+1) + ".graph"));                        
+                        // do snapshots, but only in the first of multiple runs.
+                        /*
+                        if (k == 0) {
+                            graph_access G_static;
+                            G->convert_to_graph_access(G_static);
+                            graph_io::writeGraph(G_static, std::string(output_filename + "/snapshots/snapshot_" + std::to_string(i+1) + ".graph"));                        
+                        }
+                        */
                         
                         // save data in arrays, l = algorithm, j = entry
                         matchings.at(l).at(j) = matching;
@@ -209,6 +239,13 @@ int main (int argc, char ** argv) {
                         time_elapsed = 0;
                         insertions = 0;
                         deletions = 0;
+                        
+                        // monitor some progress
+                        std::ofstream progress;
+                        progress.open(output_filename + "/progress", std::ios::trunc);
+                        double pre_status = ((k * edge_sequence.size() * algorithms.size()) + (l * edge_sequence.size()) + (i) * 1.0) / (conf.multi_run * algorithms.size() * edge_sequence.size());
+                        progress << ((int) (pre_status * 10000))/100.0 << "% done, estimated remaining time: " << simplify(1.0 / pre_status * t.elapsed())  << std::endl;
+                        progress.close();
                     }
                 }
                 
@@ -251,6 +288,11 @@ int main (int argc, char ** argv) {
         //================// PROCESS INFORMATION AND PRINT TO FILE //================//
         
         // get counters
+        counters::print_names(counternames_file);
+        
+//        counters::divide_by(conf.multi_run);
+//        counters::divide_by_d(conf.multi_run);
+        
         counters::print(counters_file);
         
         size_t node_count = count_nodes(nodes);
@@ -263,50 +305,10 @@ int main (int argc, char ** argv) {
         output_file << "nodes: " << node_count << std::endl;
         
         output_file << "# " << algorithms.size() << "x "
-                    << "insertion deletions G M time cr-similarity";
+                    << "cum_degree_M nodes_deg>1 G M time cr-similarity";
         
         output_file << std::endl;
-        
-        // matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm.
-        // see above for details, ~line 90.
-        // 
-        // therefore the size of every subvector in matchings should have the same size, namely the result size.
-        // however the size of the calculated matchings inside the subvector can differ.
-        // 
-        // in the following if-block we iterate through the sequence steps and compare the matching resutls of different algorithms
-        // for every time-step.
-        //
         /*
-        for (size_t m = 0; m < algorithms.size(); ++m) {
-            // TODO: what does upper_limit mean? why do i need it? i suspect it should be the other way around
-            
-            if (m+1 < algorithms.size()) {
-                size_t upper_limit = matchings.at(m).size() > matchings.at(m+1).size() ? matchings.at(m).size() : matchings.at(m+1).size();
-                for (size_t i = 0; i < upper_limit; ++i) {
-                    int union_size = 1;
-                    int intersect_size = quality_metrics::edgeset_intersect(matchings.at(m).at(i), matchings.at(m+1).at(i), union_size).size();
-                    
-                    // save intersect size, divide it by two since every edge is hold twice in it
-                    cross_algorithm_matching_intersect.at(m).at(i) = intersect_size/2;
-                    similarity = similarity + (union_size ? ((intersect_size * 1.0) / union_size) : 0); // if union is zero, similarity is zero
-                    sim_counter++;
-                }
-            } else { // last algorithm gets compared with first one.
-                size_t upper_limit = matchings.at(m).size() > matchings.at(0).size() ? matchings.at(m).size() : matchings.at(0).size();
-                for (size_t i = 0; i < upper_limit; ++i) {
-                    int union_size = 1;
-                    int intersect_size = quality_metrics::edgeset_intersect(matchings.at(m).at(i), matchings.at(0).at(i), union_size).size();
-                    
-                    // save intersect size, divide it by two since every edge is hold twice in it
-                    cross_algorithm_matching_intersect.at(m).at(i) = intersect_size/2;
-                    similarity = similarity + (union_size ? ((intersect_size * 1.0) / union_size) : 0);
-                    sim_counter++;
-                }
-            }
-            
-        }
-        */
-        
         std::vector<double> total_cross_run_similarities(algorithms.size(), 0);
         std::vector<int> total_cross_run_sim_counters(algorithms.size(), 0);
         
@@ -323,9 +325,9 @@ int main (int argc, char ** argv) {
         }
         
         std::cout << "cross algorithm similarity: " << similarity / sim_counter << std::endl;
+        */
         
         ASSERT_TRUE(combined_data.size() == combined_runtime.size());
-        
         
         // write data to file
         for (size_t i = 0; i < result_size; ++i) { // iterate through sequence steps
@@ -358,11 +360,33 @@ int main (int argc, char ** argv) {
 dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double eps) {
     if (algorithm == ALGORITHM::bgs) {
         return new baswanaguptasen_dyn_matching(G);
+        
     } else if (algorithm == ALGORITHM::naive) {
-        return new simple_dyn_matching(G, eps);
+        return new naive_dyn_matching(G);
+        
     } else if (algorithm == ALGORITHM::ns) {
         return new neimansolomon_dyn_matching(G);
+        
+    } else if (algorithm == ALGORITHM::rw_v1) {
+        return new simple_dyn_matching(G, eps);
+        
+    } else if (algorithm == ALGORITHM::rw_v2) {
+        return new randomwalkv2_dyn_matching(G, eps);
+        
+    } else if (algorithm == ALGORITHM::rw_v3) {
+        return new randomwalkv3_dyn_matching(G);
+        
     } else {
         return nullptr;
     }
+}
+
+std::string simplify (long secs) {
+    int mins = (secs / 60) % 60;
+    secs -= mins * 60;
+    int hours = (secs / (60 * 60)) % 24;
+    secs -= hours * 60 * 60;
+    int days = (secs / (60 * 60 * 24));
+    
+    return std::string(std::to_string(days) + "d " + std::to_string(hours) + "h " + std::to_string(mins) + "m");
 }

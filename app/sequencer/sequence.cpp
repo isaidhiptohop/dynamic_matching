@@ -387,6 +387,8 @@ void sequence::create_pooled_meyerhenke_seq() {
     
     size_t i = 0;
     
+    std::cout << "fill graph..." << std::endl;
+    
     for (; i < window;) {
         std::pair<NodeID, NodeID> edge = create_edge(rng).second;
         edge_sequence.push_back({1, edge});
@@ -395,6 +397,8 @@ void sequence::create_pooled_meyerhenke_seq() {
         add_count++;
         print_last();
     }
+    
+    std::cout << "create pool..." << std::endl;
     
     for (; i < window * (1 + poolsize/100.0);) {
         int index = rng.nextInt(0, additions.size()-1);
@@ -407,41 +411,46 @@ void sequence::create_pooled_meyerhenke_seq() {
         print_last();
     }
     
+    std::cout << "main phase..." << std::endl;
+    
     for (; i < k - window;) {
-        int index = rng.nextInt(0, additions.size()-1);
-        std::pair<NodeID, NodeID> edge = additions.at(index);
-        
-        // remove edge from additions by overwriting taken edge with last edge, then deleting last edge
-        additions.at(index) = additions.back();
-        additions.pop_back();
-        
-        pool.push_back(edge);
-        
-        edge_sequence.push_back({0, edge});
-        i++;
-        del_count++;
-        print_last();
-        
-        // now one insertion step
-        
-        index = rng.nextInt(0, pool.size()-1);
-        edge = pool.at(index);
-        
-        pool.at(index) = pool.back();
-        pool.pop_back();
-        
-        additions.push_back(edge);
-        
-        edge_sequence.push_back({1, edge});
-        i++;
-        add_count++;
-        print_last();
+        if(additions.size() == 0 || (rng.nextInt(0, 1) && pool.size() != 0)) { // deletion
+            int index = rng.nextInt(0, pool.size()-1);
+            std::pair<NodeID, NodeID> edge = pool.at(index);
+            
+            // remove edge from pool by overwriting taken edge with last edge, then deleting last edge
+            pool.at(index) = pool.back();
+            pool.pop_back();
+            
+            additions.push_back(edge);
+            
+            edge_sequence.push_back({1, edge});
+            i++;
+            add_count++;
+            print_last();
+        } else { // insertion
+            int index = rng.nextInt(0, additions.size()-1);
+            std::pair<NodeID, NodeID> edge = additions.at(index);
+            
+            // remove edge from additions by overwriting taken edge with last edge, then deleting last edge
+            additions.at(index) = additions.back();
+            additions.pop_back();
+            
+            pool.push_back(edge);
+            
+            edge_sequence.push_back({0, edge});
+            i++;
+            del_count++;
+            print_last();
+        }
     }
     
-    for (int j = 0; i < k;) {
-        std::pair<NodeID, NodeID> edge = additions.at(j++);
+    std::cout << "deconstruct graph..." << std::endl;
+    
+    for (size_t j = 0; j < additions.size(); j++ ) {
+        std::pair<NodeID, NodeID> edge = additions.at(j);
         edge_sequence.push_back({0, edge});
-        i++;
+        
         del_count++;
         print_last();
     }

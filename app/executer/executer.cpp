@@ -5,7 +5,7 @@
  *   -a[lgorithm]: ns, bgs, naive eps, gpa step
  *   -[-]a[t-]o[nce]: uint
  */
-std::vector<std::string> ALGORITHM_NAMES = {"bgs", "gpa", "naive", "ns"};
+std::vector<std::string> ALGORITHM_NAMES = {"bgs", "gpa", "naive", "ns", "rw_v1", "rw_v2", "rw_v3"};
 
 std::vector<std::pair<NodeID, NodeID> > matching_to_pairvec (const Matching & matching) {
     std::vector<std::pair<NodeID, NodeID> > pairvec;
@@ -132,9 +132,7 @@ size_t read_sequence (std::string file, std::vector<std::pair<int, std::pair<Nod
             NodeID u = atoi(substr.at(1).c_str());
             NodeID v = atoi(substr.at(2).c_str());
             
-            if (u < n && v < n) {
-                edge_sequence.push_back({addition, {u, v}});
-            }
+            edge_sequence.push_back({addition, {u, v}});
         }
     }
     

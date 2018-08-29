@@ -2,7 +2,10 @@
 #define EXECUTER_H
 
 #include "dyn_matching.h"
+#include "naive_dyn_matching.h"
 #include "simple_dyn_matching.h"
+#include "randomwalkv2_dyn_matching.h"
+#include "randomwalkv3_dyn_matching.h"
 #include "baswanaguptasen_dyn_matching.h"
 #include "neimansolomon_dyn_matching.h"
 
@@ -29,7 +32,7 @@
 #include <climits>
 #include <algorithm>
  
-enum ALGORITHM {bgs, gpa, naive, ns};
+enum ALGORITHM {bgs, gpa, naive, ns, rw_v1, rw_v2, rw_v3};
 extern std::vector<std::string> ALGORITHM_NAMES;
 
 struct ex_config {
