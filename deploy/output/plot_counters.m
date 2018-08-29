@@ -27,25 +27,17 @@ prefix;
 counters = load(strcat(prefix, "counters"));
 
 titles = [
-"calls on match() for bgs",
-"insertions with lvl 1 vertex for bgs",
-"simple insertion with u,v matched for bgs",
-"invariant violations on insertion for bgs",
-"ignore",
-"calls on match() for naive eps=0.5",
-"calls on solve\_conflict for naive eps=0.5",
-"calls on match() for naive eps=0.1",
-"calls on solve\_conflict for naive eps=0.1",
-"calls on match() for naive eps=0.01",
-"calls on solve\_conflict for naive eps=0.01",
-"calls on match() for ns",
-"neighbours of u for ns",
-"amount of us checked for ns",
-"easy insert of edge for ns",
-"complex insert with call to aug\_path() for ns",
-"complex insert with vertex staying free for ns",
-"unmatched edges for ns"
-]
+"bgs in det", 
+"bgs in rand", 
+"repair invariant without match",
+"bgs out det", 
+"bgs out rand", 
+"naive0.500000 match", 
+"naive0.100000 match", 
+"naive0.010000 match", 
+"ns direct match", 
+"ns resolve augpath"
+];
 
 # matches_per_step_simple0.500000 
 # solve_conflict0.500000 
@@ -71,7 +63,10 @@ start = 1;
 for i=start:size_counters
   figure(i+100);
   plot(counters(:,i));
-  saveas(i+100, strcat(prefix, "img/counter_", num2str(i), ".png"));
+  
+  if (exist(strcat(prefix, "img")) == 7) 
+    saveas(i+200, strcat(prefix, "img/counter_", num2str(i), ".png"));
+  endif
   
   if (i <= size(titles)) 
     title(titles(i,:));
