@@ -22,6 +22,7 @@ echo "processing $sequence..."
 echo "output will be written to $output"
 
 ./executer -f $sequence --at-once $at_once -mr 10
+rm $output"progress"
 ./gpa_matching $sequence --step=$at_once --multi-runs=10
 ./compare $output
 #rm -r $output"snapshots"
