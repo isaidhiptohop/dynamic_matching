@@ -8,6 +8,8 @@ compile:
 	$(CC) $(CFLAGS) -o simple_dyn_matching.o $(INCLUDE) simple_dyn_matching.cpp
 	$(CC) $(CFLAGS) -o randomwalkv2_dyn_matching.o $(INCLUDE) randomwalkv2_dyn_matching.cpp
 	$(CC) $(CFLAGS) -o randomwalkv3_dyn_matching.o $(INCLUDE) randomwalkv3_dyn_matching.cpp
+	$(CC) $(CFLAGS) -o randomwalkv4_dyn_matching.o $(INCLUDE) randomwalkv4_dyn_matching.cpp
+	$(CC) $(CFLAGS) -o randomwalkv5_dyn_matching.o $(INCLUDE) randomwalkv5_dyn_matching.cpp
 	$(CC) $(CFLAGS) -o neimansolomon_dyn_matching.o $(INCLUDE) neimansolomon_dyn_matching.cpp
 	$(CC) $(CFLAGS) -o baswanaguptasen_dyn_matching.o $(INCLUDE) baswanaguptasen_dyn_matching.cpp
 	
@@ -17,6 +19,8 @@ compile_debug:
 	$(CC) -g $(CFLAGS) -o simple_dyn_matching.o $(INCLUDE) simple_dyn_matching.cpp
 	$(CC) -g $(CFLAGS) -o randomwalkv2_dyn_matching.o $(INCLUDE) randomwalkv2_dyn_matching.cpp
 	$(CC) -g $(CFLAGS) -o randomwalkv3_dyn_matching.o $(INCLUDE) randomwalkv3_dyn_matching.cpp
+	$(CC) -g $(CFLAGS) -o randomwalkv4_dyn_matching.o $(INCLUDE) randomwalkv4_dyn_matching.cpp
+	$(CC) -g $(CFLAGS) -o randomwalkv5_dyn_matching.o $(INCLUDE) randomwalkv5_dyn_matching.cpp
 	$(CC) -g $(CFLAGS) -o neimansolomon_dyn_matching.o $(INCLUDE) neimansolomon_dyn_matching.cpp
 	$(CC) -g $(CFLAGS) -o baswanaguptasen_dyn_matching.o $(INCLUDE) baswanaguptasen_dyn_matching.cpp
 	
@@ -26,6 +30,8 @@ compile_counters:
 	$(CC) -DDM_COUNTERS $(CFLAGS) -o simple_dyn_matching.o $(INCLUDE) simple_dyn_matching.cpp
 	$(CC) -DDM_COUNTERS $(CFLAGS) -o randomwalkv2_dyn_matching.o $(INCLUDE) randomwalkv2_dyn_matching.cpp
 	$(CC) -DDM_COUNTERS $(CFLAGS) -o randomwalkv3_dyn_matching.o $(INCLUDE) randomwalkv3_dyn_matching.cpp
+	$(CC) -DDM_COUNTERS $(CFLAGS) -o randomwalkv4_dyn_matching.o $(INCLUDE) randomwalkv4_dyn_matching.cpp
+	$(CC) -DDM_COUNTERS $(CFLAGS) -o randomwalkv5_dyn_matching.o $(INCLUDE) randomwalkv5_dyn_matching.cpp
 	$(CC) -DDM_COUNTERS $(CFLAGS) -o neimansolomon_dyn_matching.o $(INCLUDE) neimansolomon_dyn_matching.cpp
 	$(CC) -DDM_COUNTERS $(CFLAGS) -o baswanaguptasen_dyn_matching.o $(INCLUDE) baswanaguptasen_dyn_matching.cpp
 	
@@ -35,6 +41,8 @@ compile_counters_debug:
 	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o simple_dyn_matching.o $(INCLUDE) simple_dyn_matching.cpp
 	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o randomwalkv2_dyn_matching.o $(INCLUDE) randomwalkv2_dyn_matching.cpp
 	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o randomwalkv3_dyn_matching.o $(INCLUDE) randomwalkv3_dyn_matching.cpp
+	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o randomwalkv4_dyn_matching.o $(INCLUDE) randomwalkv4_dyn_matching.cpp
+	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o randomwalkv5_dyn_matching.o $(INCLUDE) randomwalkv5_dyn_matching.cpp
 	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o neimansolomon_dyn_matching.o $(INCLUDE) neimansolomon_dyn_matching.cpp
 	$(CC) -g -DDM_COUNTERS $(CFLAGS) -o baswanaguptasen_dyn_matching.o $(INCLUDE) baswanaguptasen_dyn_matching.cpp
 	

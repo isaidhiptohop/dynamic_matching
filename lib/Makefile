@@ -10,6 +10,8 @@ library:
 		./algorithms/simple_dyn_matching.o \
 		./algorithms/randomwalkv2_dyn_matching.o \
 		./algorithms/randomwalkv3_dyn_matching.o \
+		./algorithms/randomwalkv4_dyn_matching.o \
+		./algorithms/randomwalkv5_dyn_matching.o \
 		./algorithms/baswanaguptasen_dyn_matching.o \
 		./algorithms/neimansolomon_dyn_matching.o \
 		./algorithms/dyn_matching.o \
@@ -37,6 +39,8 @@ library_counters:
 		./algorithms/simple_dyn_matching.o \
 		./algorithms/randomwalkv2_dyn_matching.o \
 		./algorithms/randomwalkv3_dyn_matching.o \
+		./algorithms/randomwalkv4_dyn_matching.o \
+		./algorithms/randomwalkv5_dyn_matching.o \
 		./algorithms/baswanaguptasen_dyn_matching.o \
 		./algorithms/neimansolomon_dyn_matching.o \
 		./algorithms/dyn_matching.o \
@@ -64,6 +68,8 @@ library_counters_debug:
 		./algorithms/simple_dyn_matching.o \
 		./algorithms/randomwalkv2_dyn_matching.o \
 		./algorithms/randomwalkv3_dyn_matching.o \
+		./algorithms/randomwalkv4_dyn_matching.o \
+		./algorithms/randomwalkv5_dyn_matching.o \
 		./algorithms/baswanaguptasen_dyn_matching.o \
 		./algorithms/neimansolomon_dyn_matching.o \
 		./algorithms/dyn_matching.o \
@@ -91,6 +97,8 @@ library_debug:
 		./algorithms/simple_dyn_matching.o \
 		./algorithms/randomwalkv2_dyn_matching.o \
 		./algorithms/randomwalkv3_dyn_matching.o \
+		./algorithms/randomwalkv4_dyn_matching.o \
+		./algorithms/randomwalkv5_dyn_matching.o \
 		./algorithms/baswanaguptasen_dyn_matching.o \
 		./algorithms/neimansolomon_dyn_matching.o \
 		./algorithms/dyn_matching.o \

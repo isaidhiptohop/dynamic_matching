@@ -30,16 +30,22 @@ int main (int argc, char ** argv) {
         
         
         // initialize list of algorithms 
-        std::vector<ALGORITHM> algorithms({ALGORITHM::bgs, 
+        std::vector<ALGORITHM> algorithms({ALGORITHM::bgs,
                                            ALGORITHM::naive,
                                            ALGORITHM::ns,
-                                           ALGORITHM::rw_v1, 
-                                           ALGORITHM::rw_v1, 
                                            ALGORITHM::rw_v1,
-                                           ALGORITHM::rw_v2, 
-                                           ALGORITHM::rw_v2, 
+                                           ALGORITHM::rw_v1,
+                                           ALGORITHM::rw_v1,
                                            ALGORITHM::rw_v2,
-                                           ALGORITHM::rw_v3
+                                           ALGORITHM::rw_v2,
+                                           ALGORITHM::rw_v2,
+                                           ALGORITHM::rw_v3,
+                                           ALGORITHM::rw_v4,
+                                           ALGORITHM::rw_v4,
+                                           ALGORITHM::rw_v4,
+                                           ALGORITHM::rw_v5,
+                                           ALGORITHM::rw_v5,
+                                           ALGORITHM::rw_v5
         });
         std::vector<double>    eps       ({0,
                                            0,
@@ -50,7 +56,13 @@ int main (int argc, char ** argv) {
                                            0.5,
                                            0.1,
                                            0.01,
-                                           0
+                                           0,
+                                           0.5,
+                                           0.1,
+                                           0.01,
+                                           0.5,
+                                           0.1,
+                                           0.01
         });
         
         ASSERT_TRUE(algorithms.size() == eps.size());
@@ -67,9 +79,20 @@ int main (int argc, char ** argv) {
         std::ofstream output_file;
         output_file.open(output_filename + "/data");
         
+        std::ofstream algorithms_file;
+        algorithms_file.open(output_filename + "/algorithms");
+        
         output_file << "# ";
         
         for (size_t i = 0; i < algorithms.size(); ++i) {
+            algorithms_file << "\"" << ALGORITHM_NAMES.at(algorithms.at(i)) << (eps.at(i)? (" " + std::to_string(eps.at(i))) : "");
+            
+            if (i != algorithms.size()-1) {
+                algorithms_file << "\",";
+            }
+            
+            algorithms_file << std::endl;
+            
             output_file << ALGORITHM_NAMES.at(algorithms.at(i)) << (eps.at(i)? (" " + std::to_string(eps.at(i))) : "") << ", ";
         }
         
@@ -100,12 +123,12 @@ int main (int argc, char ** argv) {
         // combined_data is 3D: algorithms X evaluated sequence steps X measurements
         // algorithms is determined by algorithms.size(),
         // the evaluated sequence steps corresponds to result_size,
-        // the measurements are 4: insertions, deletions, cardinality of G, cardinality of M
-        std::vector<std::vector<std::vector<int> > > combined_data(algorithms.size(), std::vector<std::vector<int> >(result_size, std::vector<int>(4, 0)));
+        // the measurements are 4: insertions, deletions, cardinality of G, cardinality of M, average cardinality of M
+        std::vector<std::vector<std::vector<int> > > combined_data(algorithms.size(), std::vector<std::vector<int> >(result_size, std::vector<int>(5, 0)));
         
-        // combined_runtime is 2D: algorithms X evaluated sequence steps
+        // combined_data_d is 2D: algorithms X evaluated sequence steps
         // the dimensions are the same as for combined_data, only there is only one measurement, the elapsed time
-        std::vector<std::vector<double> > combined_runtime(algorithms.size(), std::vector<double>(result_size, 0));
+        std::vector<std::vector<std::vector<double> > > combined_data_d(algorithms.size(), std::vector<std::vector<double> >(result_size, std::vector<double>(2, 0)));
         
         // matchings is 3D vector, which contains at the position (i, j, k) the kth edge of the jth sequence step of the ith algorithm:
         //
@@ -229,7 +252,8 @@ int main (int argc, char ** argv) {
                         // size gets divided by two since M holds every edge twice as (u,v) and (v,u)
                         combined_data.at(l).at(j).at(2) = algorithm->getG().number_of_edges()/2;
                         combined_data.at(l).at(j).at(3) = matching.size()/2;
-                        combined_runtime.at(l).at(j) = combined_runtime.at(l).at(j) + time_elapsed/conf.multi_run;
+                        combined_data_d.at(l).at(j).at(0) = combined_data_d.at(l).at(j).at(0) + matching.size()/(2.0 * conf.multi_run);
+                        combined_data_d.at(l).at(j).at(1) = combined_data_d.at(l).at(j).at(1) + time_elapsed/conf.multi_run;
                         
                         // iterator for data vector gets incremented only when data is written to the data vector
                         // j = 0:1:result_size; // according to octave syntax
@@ -244,7 +268,11 @@ int main (int argc, char ** argv) {
                         std::ofstream progress;
                         progress.open(output_filename + "/progress", std::ios::trunc);
                         double pre_status = ((k * edge_sequence.size() * algorithms.size()) + (l * edge_sequence.size()) + (i) * 1.0) / (conf.multi_run * algorithms.size() * edge_sequence.size());
-                        progress << ((int) (pre_status * 10000))/100.0 << "% done, estimated remaining time: " << simplify(1.0 / pre_status * t.elapsed())  << std::endl;
+                        progress << "step " << i << "/" << edge_sequence.size() << ", " 
+                                 << "algorithm " << l << "(" << ALGORITHM_NAMES.at(algorithms.at(l)) << ")/" << algorithms.size() << ", "
+                                 << "run " << k << "/" << conf.multi_run << std::endl;
+                        progress << ((int) (pre_status * 10000))/100.0 << "% done, estimated remaining time: "
+                                 << simplify((1.0 / pre_status * t.elapsed()) - t.elapsed())  << std::endl;
                         progress.close();
                     }
                 }
@@ -305,7 +333,7 @@ int main (int argc, char ** argv) {
         output_file << "nodes: " << node_count << std::endl;
         
         output_file << "# " << algorithms.size() << "x "
-                    << "cum_degree_M nodes_deg>1 G M time cr-similarity";
+                    << "cum_degree_M nodes_deg>1 G M avg_M time cr-similarity";
         
         output_file << std::endl;
         /*
@@ -327,7 +355,7 @@ int main (int argc, char ** argv) {
         std::cout << "cross algorithm similarity: " << similarity / sim_counter << std::endl;
         */
         
-        ASSERT_TRUE(combined_data.size() == combined_runtime.size());
+        ASSERT_TRUE(combined_data.size() == combined_data_d.size());
         
         // write data to file
         for (size_t i = 0; i < result_size; ++i) { // iterate through sequence steps
@@ -336,7 +364,8 @@ int main (int argc, char ** argv) {
                             << combined_data.at(j).at(i).at(1) << " " 
                             << combined_data.at(j).at(i).at(2) << " " 
                             << combined_data.at(j).at(i).at(3) << " " 
-                            << combined_runtime.at(j).at(i) << " "
+                            << combined_data_d.at(j).at(i).at(0) << " "
+                            << combined_data_d.at(j).at(i).at(1) << " "
                             
                             // check that we don't divdide by zero
                             << (cross_run_sim_counters.at(j).at(i) ? cross_run_similarities.at(j).at(i) / cross_run_sim_counters.at(j).at(i) : 0) << " ";
@@ -375,6 +404,12 @@ dyn_matching * init_algorithm (ALGORITHM algorithm, dyn_graph_access * G, double
         
     } else if (algorithm == ALGORITHM::rw_v3) {
         return new randomwalkv3_dyn_matching(G);
+        
+    } else if (algorithm == ALGORITHM::rw_v4) {
+        return new randomwalkv4_dyn_matching(G, eps);
+        
+    } else if (algorithm == ALGORITHM::rw_v5) {
+        return new randomwalkv5_dyn_matching(G, eps);
         
     } else {
         return nullptr;

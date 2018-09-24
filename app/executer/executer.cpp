@@ -5,7 +5,7 @@
  *   -a[lgorithm]: ns, bgs, naive eps, gpa step
  *   -[-]a[t-]o[nce]: uint
  */
-std::vector<std::string> ALGORITHM_NAMES = {"bgs", "gpa", "naive", "ns", "rw_v1", "rw_v2", "rw_v3"};
+std::vector<std::string> ALGORITHM_NAMES = {"bgs", "gpa", "naive", "ns", "rw_v1", "rw_v2", "rw_v3", "rw_v4", "rw_v5"};
 
 std::vector<std::pair<NodeID, NodeID> > matching_to_pairvec (const Matching & matching) {
     std::vector<std::pair<NodeID, NodeID> > pairvec;
