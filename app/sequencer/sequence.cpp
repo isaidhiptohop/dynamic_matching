@@ -93,7 +93,11 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
                 }
             } else if (line.size() != 0 && line.at(0) != '%') {
 //                if (helper++ % 10) { i++; continue; }
-                if (i >= k) break;
+                
+                if(check_break(i)) {
+                    break;
+                }
+                
                 if (!(i % 10000)) std::cout << i << "/" << k_buf << " read..." << std::endl;
                 std::vector<std::string> substrings = split(line, ' ');
                 
@@ -151,7 +155,7 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
     std::cout << "read " << buf.size() << " edges." << std::endl;
     
     // adjust sequence size to size of sequence in file
-    if (mode == MODE::only_addition || mode == MODE::random_step) {
+    if (mode == MODE::only_addition || mode == MODE::random_step || mode == MODE::native) {
         if (buf.size() < k) {
             k = buf.size();
         }
@@ -168,6 +172,18 @@ std::pair<NodeID, NodeID> sequence::load_from_file() {
     std::cout << "k after file read is " << k << std::endl;
     
     return result;
+}
+
+bool sequence::check_break (size_t i) {
+    if (mode == MODE::meyerhenke || mode == MODE::pooled_meyerhenke) {
+        if (i >= window) return true;
+    } else if (mode == MODE::only_addition || mode == MODE::random_step || mode == MODE::native) {
+        if (i >= k) return true;
+    } else if (mode == MODE::sliding_window) {
+        if (2 * i >= k) return true;
+    }
+    
+    return false;
 }
 
 // only_addition, random, sliding_window, meyerhenke

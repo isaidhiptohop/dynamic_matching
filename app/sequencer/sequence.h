@@ -58,6 +58,8 @@ public:
     std::string get_name();
     void print_last();
     
+    bool check_break(size_t i);
+    
 private:
     NodeID count_nodes();
     
