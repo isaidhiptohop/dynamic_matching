@@ -12,7 +12,7 @@ struct fileio {
     std::string filename;
     std::ifstream input;
     
-    fileio (std::string filename);
+    fileio (std::string filename, int num_of_algorithms = 1);
     
     void reset ();
     
@@ -34,15 +34,28 @@ int main (int argc, char ** argv) {
         return 1;
     }
     
+    std::string line;
+    std::ifstream input(std::string(prefix + "matchings"));
+    int num_of_algorithms = -1;
+    
+    do {
+        getline(input, line);
+        num_of_algorithms++;
+    } while (line != "");
+    
+    std::cout << "read " << num_of_algorithms << " algorithms." << std::endl;
     
     // initialize fileio access
-    fileio matchings(std::string(prefix + "matchings"));
+    fileio matchings(std::string(prefix + "matchings"), num_of_algorithms);
     fileio gpa_matchings_io(std::string(prefix + "matchings_gpa"));
     
     
     // buffer matching
     std::vector<std::pair<NodeID, NodeID> > matching;
     
+    // result vector
+    std::vector<std::vector<int> > results;
+        
     // (x,y[,z]) : xth algorithm, yth matching, zth edge in matching
     std::vector<std::vector<std::vector<std::pair<NodeID, NodeID> > > > all_matchings;
     
@@ -50,39 +63,60 @@ int main (int argc, char ** argv) {
     // get all gpa_matchings into vector
     std::vector<std::vector<std::pair<NodeID, NodeID> > > gpa_matchings;
     
-    while (gpa_matchings_io.next_gpa_matching(matching)) {
-        gpa_matchings.push_back(matching);
-    }
-    
-    std::vector<std::vector<int> > results (gpa_matchings.size());
-    
-    
-    for (int i = 0; i < matchings.num_of_algorithms; ++i) {
-        matchings.algorithm = i;
-        size_t j = 0;
-        
-        all_matchings.push_back(std::vector<std::vector<std::pair<NodeID, NodeID> > >());
-        
-        while (matchings.next_matching(matching) && j < gpa_matchings.size()) {
-            all_matchings.at(i).push_back(matching);
-            
-            int union_size = 1;
-            int intersect_size = quality_metrics::edgeset_intersect(gpa_matchings.at(j), matching, union_size).size();
-            
-            results.at(j).push_back(gpa_matchings.at(j).size()/2);
-            results.at(j).push_back(matching.size()/2);
-            results.at(j).push_back(intersect_size/2);
-            /*
-            std::cout << j << " " 
-                      << gpa_matchings.at(j).size()/2 << " "
-                      << matching.size()/2 << " "
-                      << intersect_size/2 << " "
-                      << std::endl;
-            */
-            j++;
+    if (gpa_matchings_io.input.good()) {
+        while (gpa_matchings_io.next_gpa_matching(matching)) {
+            gpa_matchings.push_back(matching);
         }
         
+        results = std::vector<std::vector<int> >(gpa_matchings.size());
+        
+        for (int i = 0; i < matchings.num_of_algorithms; ++i) {
+            matchings.algorithm = i;
+            size_t j = 0;
+            
+            all_matchings.push_back(std::vector<std::vector<std::pair<NodeID, NodeID> > >());
+            
+            while (matchings.next_matching(matching) && j < gpa_matchings.size()) {
+                all_matchings.at(i).push_back(matching);
+                
+                int union_size = 1;
+                int intersect_size = quality_metrics::edgeset_intersect(gpa_matchings.at(j), matching, union_size).size();
+                
+                results.at(j).push_back(gpa_matchings.at(j).size()/2);
+                results.at(j).push_back(matching.size()/2);
+                results.at(j).push_back(intersect_size/2);
+                /*
+                std::cout << j << " " 
+                          << gpa_matchings.at(j).size()/2 << " "
+                          << matching.size()/2 << " "
+                          << intersect_size/2 << " "
+                          << std::endl;
+                */
+                j++;
+            }
+            
+            matchings.reset();
+        }
+    } else {
+        int i = 0;
+        while (matchings.next_matching(matching)) {
+            i++;
+        }
+        
+        results = std::vector<std::vector<int> >(i);
+        
         matchings.reset();
+        
+        for (int i = 0; i < matchings.num_of_algorithms; ++i) {
+            matchings.algorithm = i;
+            all_matchings.push_back(std::vector<std::vector<std::pair<NodeID, NodeID> > >());
+            
+            while(matchings.next_matching(matching)) {
+                all_matchings.at(i).push_back(matching);
+            }
+            
+            matchings.reset();
+        }
     }
     
     for (size_t i = 0; i < all_matchings.size(); ++i) {
@@ -113,8 +147,9 @@ int main (int argc, char ** argv) {
 }
 
 
-fileio::fileio (std::string filename) {
+fileio::fileio (std::string filename, int num_of_algorithms) {
     this->filename = filename;
+    this->num_of_algorithms = num_of_algorithms;
     input = std::ifstream(filename);
 }
 
@@ -141,6 +176,8 @@ bool fileio::next_matching (std::vector<std::pair<NodeID, NodeID> >& matching) {
         if (input.eof()) return false;
         getline(input, line);
         index++;
+        
+        if (line == "" && input.eof()) return false;
     }
     
     return parse_to_matching(matching, line);
