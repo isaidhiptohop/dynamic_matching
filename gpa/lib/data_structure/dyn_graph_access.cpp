@@ -70,13 +70,13 @@ basicGraph * dyn_graph_access::convert_to_basic_graph() {
     basicGraph * realGraph = new basicGraph();
     realGraph->start_construction(number_of_nodes(), number_of_edges());
     
+    // directly add all edges for this node.
     for (int n = 0; n < number_of_nodes(); ++n) {
         realGraph->new_node();
-    }
-    
-    for (int n = 0; n < number_of_nodes(); ++n) {
+        
         for (int e = 0; e < getEdgesFromNode(n).size(); ++e) {
-            realGraph->new_edge(n, getEdgeTarget(n, e));
+            EdgeID id = realGraph->new_edge(n, getEdgeTarget(n, e));
+            realGraph->edges[id].weight = 1;
         }
     }
     

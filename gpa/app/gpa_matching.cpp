@@ -106,14 +106,16 @@ int main(int argn, char **argv) {
                     // apply sequence steps
                     if (edge_sequence.at(l).first) {
                         dynG.new_edge(edge_sequence.at(l).second.first, edge_sequence.at(l).second.second);
+                        dynG.new_edge(edge_sequence.at(l).second.second, edge_sequence.at(l).second.first);
                     } else {
                         dynG.remove_edge(edge_sequence.at(l).second.first, edge_sequence.at(l).second.second);
+                        dynG.remove_edge(edge_sequence.at(l).second.second, edge_sequence.at(l).second.first);
                     }
                 }
                 
                 // create static instance from dynamic graph
                 basicGraph * realGraph = dynG.convert_to_basic_graph();
-                printGraph(*realGraph);
+//                printGraph(*realGraph);
                 
                 graph_access G (realGraph);
                 
@@ -136,10 +138,10 @@ int main(int argn, char **argv) {
                 if (i == 0) {
                     print_matching(matchings_file, matching);
                     time_elapsed.push_back(t_elapsed / multi_run);
-                    graph_size.push_back(G.number_of_edges());
+                    graph_size.push_back(G.number_of_edges()/2);
                 } else {
                     time_elapsed.at(j) = t_elapsed / multi_run;
-                    graph_size.at(j) = G.number_of_edges();
+                    graph_size.at(j) = G.number_of_edges()/2;
                     j++;
                 }
                 

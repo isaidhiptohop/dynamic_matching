@@ -126,7 +126,6 @@ template<typename graphType> int graph_io::readGraphWeighted(graphType & Graph, 
                         {
                                 Graph.edges[e].weight = edgeWeight;
                         } else {
-
                                 Graph.edges[e].weight = 1;
                         }
                 }
