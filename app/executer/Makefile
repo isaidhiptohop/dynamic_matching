@@ -16,13 +16,16 @@ run:
 compile_debug:
 	g++ -o executer.o -c -g $(CFLAGS) $(INCLUDE) executer.cpp
 	g++ -o main.o -c -g $(CFLAGS) $(INCLUDE) main.cpp
+	g++ -o main_eps.o -c -g $(CFLAGS) $(INCLUDE) main_eps.cpp
 
 compile:
 	g++ -o executer.o -c $(CFLAGS) $(INCLUDE) executer.cpp
 	g++ -o main.o -c $(CFLAGS) $(INCLUDE) main.cpp
+	g++ -o main_eps.o -c $(CFLAGS) $(INCLUDE) main_eps.cpp
 
 link:
 	g++ -o executer main.o executer.o $(LIBRARY)
+	g++ -o executer_eps main_eps.o executer.o $(LIBRARY)
 	
 clean:
 	rm -f *.o
