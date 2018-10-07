@@ -50,6 +50,7 @@ gpa-debug:
 copy-executables:
 	cp app/compare/compare deploy/
 	cp app/executer/executer deploy/
+	cp app/executer/executer_eps deploy/
 	cp app/sequencer/sequencer deploy/
 	cp gpa/app/gpa_matching deploy/
 	mkdir -p deploy/output
